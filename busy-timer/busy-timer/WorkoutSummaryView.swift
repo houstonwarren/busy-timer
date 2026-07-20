@@ -10,6 +10,7 @@ struct WorkoutSummaryView: View {
     let onComplete: (Int?) -> Void
 
     @State private var completedReps: Int
+    @FocusState private var repsFocused: Bool
 
     init(plan: WorkoutPlan, promptedReps: Int, onComplete: @escaping (Int?) -> Void) {
         self.plan = plan
@@ -21,60 +22,111 @@ struct WorkoutSummaryView: View {
     private var finishedAll: Bool { promptedReps >= plan.targetReps }
 
     var body: some View {
-        NavigationStack {
-            Form {
-                Section {
-                    VStack(spacing: 8) {
-                        Image(systemName: finishedAll ? "trophy.fill" : "flag.checkered")
-                            .font(.system(size: 44))
-                            .foregroundStyle(finishedAll ? .yellow : .secondary)
-                        Text(finishedAll ? "Workout complete!" : "Stopped early")
-                            .font(.title2.weight(.semibold))
-                        Text("Timer prompted \(promptedReps) of \(plan.targetReps) \(plan.burpeeType.rawValue) burpees")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                            .multilineTextAlignment(.center)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .listRowBackground(Color.clear)
+        VStack(spacing: 24) {
+            Capsule()
+                .fill(Color.white.opacity(0.15))
+                .frame(width: 36, height: 5)
+                .padding(.top, 10)
+
+            VStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill((finishedAll ? Theme.volt : Theme.amber).opacity(0.12))
+                        .frame(width: 84, height: 84)
+                    Image(systemName: finishedAll ? "trophy.fill" : "flag.checkered")
+                        .font(.system(size: 34, weight: .semibold))
+                        .foregroundStyle(finishedAll ? Theme.volt : Theme.amber)
                 }
 
-                Section("How many did you actually do?") {
-                    Stepper(value: $completedReps, in: 0...999) {
-                        TextField("Reps", value: $completedReps, format: .number)
-                            .keyboardType(.numberPad)
-                            .font(.title3.weight(.semibold))
-                    }
-                }
+                Text(finishedAll ? "Workout Complete" : "Stopped Early")
+                    .font(Theme.display(26))
+                    .foregroundStyle(.white)
 
-                Section {
-                    Button {
-                        onComplete(completedReps)
-                    } label: {
-                        Label("Save Workout", systemImage: "checkmark")
-                            .frame(maxWidth: .infinity)
-                            .font(.headline)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .listRowInsets(EdgeInsets())
-                    .listRowBackground(Color.clear)
+                Text("Timer prompted \(promptedReps) of \(plan.targetReps) \(plan.burpeeType.rawValue) burpees")
+                    .font(.footnote)
+                    .foregroundStyle(Theme.textSecondary)
+                    .multilineTextAlignment(.center)
+            }
+            .padding(.top, 8)
 
-                    Button("Discard", role: .destructive) {
-                        onComplete(nil)
+            VStack(spacing: 14) {
+                Text("How many did you actually do?")
+                    .overline()
+
+                HStack(spacing: 24) {
+                    RepAdjustButton(systemImage: "minus") {
+                        completedReps = max(0, completedReps - 1)
                     }
-                    .frame(maxWidth: .infinity)
+
+                    TextField("0", value: $completedReps, format: .number)
+                        .keyboardType(.numberPad)
+                        .focused($repsFocused)
+                        .font(Theme.display(52))
+                        .monospacedDigit()
+                        .foregroundStyle(.white)
+                        .multilineTextAlignment(.center)
+                        .tint(Theme.volt)
+                        .frame(width: 130)
+
+                    RepAdjustButton(systemImage: "plus") {
+                        completedReps = min(999, completedReps + 1)
+                    }
                 }
             }
-            .navigationTitle("Summary")
-            .navigationBarTitleDisplayMode(.inline)
+            .card()
+            .padding(.horizontal, 20)
+
+            Spacer(minLength: 0)
+
+            VStack(spacing: 4) {
+                Button("Save Workout") {
+                    repsFocused = false
+                    onComplete(completedReps)
+                }
+                .buttonStyle(VoltButtonStyle())
+
+                Button("Discard") {
+                    onComplete(nil)
+                }
+                .font(.system(.subheadline, design: .rounded).weight(.bold))
+                .foregroundStyle(Theme.coral)
+                .padding(.vertical, 12)
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 8)
         }
-        .presentationDetents([.medium, .large])
+        .inkBackground()
+        .presentationDetents([.large])
+        .presentationBackground(Theme.ink)
+        .presentationDragIndicator(.hidden)
+    }
+}
+
+private struct RepAdjustButton: View {
+    let systemImage: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: systemImage)
+                .font(.system(size: 18, weight: .bold))
+                .foregroundStyle(.white)
+                .frame(width: 48, height: 48)
+                .background(
+                    Circle()
+                        .fill(Theme.surfaceBright)
+                        .overlay(Circle().strokeBorder(Theme.cardStroke, lineWidth: 1))
+                )
+        }
+        .buttonStyle(.plain)
     }
 }
 
 #Preview {
-    WorkoutSummaryView(
-        plan: WorkoutPlan(targetReps: 50, burpeeType: .sixCount, totalDuration: 1200),
-        promptedReps: 32
-    ) { _ in }
+    Color.black.sheet(isPresented: .constant(true)) {
+        WorkoutSummaryView(
+            plan: WorkoutPlan(targetReps: 50, burpeeType: .sixCount, totalDuration: 1200),
+            promptedReps: 32
+        ) { _ in }
+    }
 }

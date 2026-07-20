@@ -6,6 +6,23 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		F19195F4300EB37E00F1436A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F19258B62C903A15005D7181 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F19258BD2C903A15005D7181;
+			remoteInfo = "busy-timer";
+		};
+		F19195F5300EB37E00F1436A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F19258B62C903A15005D7181 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F19258BD2C903A15005D7181;
+			remoteInfo = "busy-timer";
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		F19258BE2C903A15005D7181 /* busy-timer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "busy-timer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F19258CE2C903A16005D7181 /* busy-timerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "busy-timerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -236,10 +253,12 @@
 		F19258D02C903A16005D7181 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = F19258BD2C903A15005D7181 /* busy-timer */;
+			targetProxy = F19195F4300EB37E00F1436A /* PBXContainerItemProxy */;
 		};
 		F19258DA2C903A16005D7181 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = F19258BD2C903A15005D7181 /* busy-timer */;
+			targetProxy = F19195F5300EB37E00F1436A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

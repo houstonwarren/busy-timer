@@ -8,6 +8,10 @@ struct busy_timerApp: App {
         WindowGroup {
             ContentView()
                 .environment(workoutStore)
+                // The design language is built on an ink-dark palette; the app
+                // commits to dark rendering regardless of system appearance.
+                .preferredColorScheme(.dark)
+                .tint(Theme.volt)
         }
     }
 }
