@@ -2,7 +2,7 @@ import SwiftUI
 
 @main
 struct busy_timerApp: App {
-    @State private var workoutStore = WorkoutStore()
+    @State private var workoutStore = WorkoutStore(backup: KeychainBackup())
 
     var body: some Scene {
         WindowGroup {

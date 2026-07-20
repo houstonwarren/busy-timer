@@ -189,4 +189,63 @@ struct WorkoutStoreTests {
         #expect(store.workouts.map(\.completedReps) == [2, 1])
         #expect(store.totalCompletedReps == 3)
     }
+
+    @Test func savesMirrorIntoBackup() {
+        let url = temporaryStoreURL()
+        defer { try? FileManager.default.removeItem(at: url) }
+        let backup = InMemoryBackup()
+
+        let store = WorkoutStore(fileURL: url, backup: backup)
+        store.add(makeWorkout())
+        #expect(backup.data != nil)
+    }
+
+    @Test func restoresFromBackupWhenFileIsMissing() {
+        let url = temporaryStoreURL()
+        defer { try? FileManager.default.removeItem(at: url) }
+        let backup = InMemoryBackup()
+
+        let store = WorkoutStore(fileURL: url, backup: backup)
+        store.add(makeWorkout(completedReps: 47))
+
+        // Simulate app deletion: the sandbox file is gone, the backup is not.
+        try? FileManager.default.removeItem(at: url)
+        let reinstalled = WorkoutStore(fileURL: temporaryStoreURL(), backup: backup)
+        #expect(reinstalled.workouts.map(\.completedReps) == [47])
+    }
+
+    @Test func fileWinsOverBackupWhenBothExist() {
+        let url = temporaryStoreURL()
+        defer { try? FileManager.default.removeItem(at: url) }
+        let backup = InMemoryBackup()
+
+        WorkoutStore(fileURL: url, backup: backup).add(makeWorkout(completedReps: 1))
+        // The file moves on without the backup (e.g. backup written by an
+        // older run): the local file is the source of truth.
+        WorkoutStore(fileURL: url).add(makeWorkout(completedReps: 2))
+
+        let store = WorkoutStore(fileURL: url, backup: backup)
+        #expect(store.workouts.map(\.completedReps) == [2, 1])
+    }
+
+    @Test func keychainBackupRoundTrips() {
+        let backup = KeychainBackup(
+            service: "busy-timer-tests",
+            account: "round-trip-\(UUID().uuidString)"
+        )
+        let payload = Data("workout-history-test".utf8)
+        backup.write(payload)
+        #expect(backup.read() == payload)
+
+        let updated = Data("workout-history-test-2".utf8)
+        backup.write(updated)
+        #expect(backup.read() == updated)
+    }
+}
+
+/// Test double for `HistoryBackup`.
+private final class InMemoryBackup: HistoryBackup {
+    var data: Data?
+    func read() -> Data? { data }
+    func write(_ data: Data) { self.data = data }
 }
