@@ -2,7 +2,10 @@ import Foundation
 import Observation
 
 /// Drives a paced workout: a lead-in countdown, then one fixed-length interval
-/// per rep until the target is reached or the user stops.
+/// per chime until the target is reached or the user stops. Each chime asks
+/// for `plan.repsPerChime` burpees and its interval is sized to match, so a
+/// batch of 3 gets three reps' worth of clock; the final batch shrinks to
+/// whatever remains when the target isn't divisible.
 ///
 /// Timing is deadline-based rather than decrement-based: the engine stores the
 /// wall-clock `Date` at which the current interval ends and derives the
@@ -31,9 +34,9 @@ final class WorkoutEngine {
     private(set) var completedReps = 0
     private(set) var timeRemaining: TimeInterval
 
-    /// Called at the start of every rep interval (the moment to chime).
-    var onRepStart: (() -> Void)?
-    /// Called once when the final rep's interval elapses.
+    /// Called at the start of every interval (the moment to chime).
+    var onChime: (() -> Void)?
+    /// Called once when the final interval elapses.
     var onFinish: (() -> Void)?
 
     private var deadline: Date?
@@ -44,20 +47,16 @@ final class WorkoutEngine {
     @ObservationIgnored private nonisolated(unsafe) var tickTimer: Timer?
     private let autoTicks: Bool
 
-    /// The rep currently being performed (1-based); 0 before the first rep starts.
-    var currentRep: Int {
-        switch phase {
-        case .ready, .countingDown: 0
-        case .finished: completedReps
-        default: min(completedReps + 1, plan.targetReps)
-        }
+    /// Reps the current (or next) chime asks for; shrinks on the final batch.
+    var repsThisChime: Int {
+        min(plan.repsPerChime, plan.targetReps - completedReps)
     }
 
-    /// Fraction of the current interval (or countdown) still remaining, for progress rings.
+    /// Fraction of the current interval (or countdown) still remaining, for progress bars.
     var intervalFractionRemaining: Double {
-        let length = phase == .countingDown || (phase == .paused && phaseBeforePause == .countingDown)
+        let length = isCountingDown
             ? countdownDuration
-            : plan.secondsPerRep
+            : plan.secondsPerRep * Double(max(repsThisChime, 1))
         guard length > 0 else { return 0 }
         return max(0, min(1, timeRemaining / length))
     }
@@ -114,10 +113,10 @@ final class WorkoutEngine {
             switch phase {
             case .countingDown:
                 phase = .running
-                currentDeadline = currentDeadline.addingTimeInterval(plan.secondsPerRep)
-                onRepStart?()
+                currentDeadline = currentDeadline.addingTimeInterval(plan.secondsPerRep * Double(repsThisChime))
+                onChime?()
             case .running:
-                completedReps += 1
+                completedReps += repsThisChime
                 if completedReps >= plan.targetReps {
                     deadline = nil
                     timeRemaining = 0
@@ -126,8 +125,8 @@ final class WorkoutEngine {
                     onFinish?()
                     return
                 }
-                currentDeadline = currentDeadline.addingTimeInterval(plan.secondsPerRep)
-                onRepStart?()
+                currentDeadline = currentDeadline.addingTimeInterval(plan.secondsPerRep * Double(repsThisChime))
+                onChime?()
             default:
                 return
             }

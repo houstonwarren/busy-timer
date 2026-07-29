@@ -1,29 +1,33 @@
 import SwiftUI
 
-/// The app's design language: a dark "night gym" palette — near-black ink,
-/// graphite surfaces, and a single electric volt accent — with heavy rounded
-/// numerals and uppercase tracked labels.
+/// The app's design language: "clear air" — warm paper, deep ink, one pine
+/// accent, and big serif numerals. The brand is simplicity: twenty minutes
+/// of burpees, nothing to buy, nothing else to decide. The look should read
+/// like a well-set page, not a gym poster.
 enum Theme {
-    /// App-wide background.
-    static let ink = Color(red: 0.047, green: 0.055, blue: 0.071)
-    /// Elevated card surface.
-    static let surface = Color(red: 0.090, green: 0.104, blue: 0.133)
-    /// Brighter surface for selected chips and pressed states.
-    static let surfaceBright = Color(red: 0.137, green: 0.153, blue: 0.192)
-    /// The one hot accent. Used sparingly: the CTA, the live ring, key numbers.
-    static let volt = Color(red: 0.824, green: 0.969, blue: 0.282)
-    /// Countdown / caution.
-    static let amber = Color(red: 1.0, green: 0.706, blue: 0.329)
+    /// App-wide background: warm paper.
+    static let paper = Color(red: 0.961, green: 0.945, blue: 0.910)
+    /// Card surface.
+    static let card = Color.white
+    /// Primary text and numerals: green-cast near-black.
+    static let ink = Color(red: 0.106, green: 0.133, blue: 0.110)
+    /// The one accent: CTA, key numbers, live progress.
+    static let pine = Color(red: 0.173, green: 0.369, blue: 0.310)
+    /// Caution / stopped early.
+    static let clay = Color(red: 0.753, green: 0.471, blue: 0.298)
     /// Destructive.
-    static let coral = Color(red: 1.0, green: 0.42, blue: 0.37)
+    static let rust = Color(red: 0.663, green: 0.263, blue: 0.227)
+    /// Breath-field tints (the home screen marquee).
+    static let air = Color(red: 0.725, green: 0.812, blue: 0.859)
+    static let sage = Color(red: 0.796, green: 0.863, blue: 0.784)
 
-    static let cardStroke = Color.white.opacity(0.07)
-    static let textSecondary = Color.white.opacity(0.55)
-    static let textFaint = Color.white.opacity(0.40)
+    static let hairline = Color.black.opacity(0.08)
+    static let textSecondary = ink.opacity(0.55)
+    static let textFaint = ink.opacity(0.38)
 
-    /// Big display numerals (timer, rep counts).
+    /// Big display numerals and headlines (timer, rep counts).
     static func display(_ size: CGFloat) -> Font {
-        .system(size: size, weight: .heavy, design: .rounded)
+        .system(size: size, weight: .heavy, design: .serif)
     }
 }
 
@@ -38,44 +42,43 @@ extension View {
             .foregroundStyle(color)
     }
 
-    /// Graphite card container.
+    /// White card container on the paper background.
     func card(padding: CGFloat = 20) -> some View {
         self
             .padding(padding)
             .frame(maxWidth: .infinity)
             .background(
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
-                    .fill(Theme.surface)
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(Theme.card)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 22, style: .continuous)
-                            .strokeBorder(Theme.cardStroke, lineWidth: 1)
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .strokeBorder(Theme.hairline, lineWidth: 1)
                     )
+                    .shadow(color: .black.opacity(0.05), radius: 14, y: 6)
             )
     }
 
     /// Standard screen backdrop.
-    func inkBackground() -> some View {
-        background(Theme.ink.ignoresSafeArea())
+    func paperBackground() -> some View {
+        background(Theme.paper.ignoresSafeArea())
     }
 }
 
 // MARK: - Buttons
 
-/// Full-width high-emphasis button: volt fill, black text.
-struct VoltButtonStyle: ButtonStyle {
+/// Full-width high-emphasis button: pine fill, paper text.
+struct PrimaryButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(.headline, design: .rounded).weight(.bold))
-            .textCase(.uppercase)
-            .kerning(1.2)
-            .foregroundStyle(isEnabled ? .black : Theme.textFaint)
+            .font(.headline.weight(.semibold))
+            .foregroundStyle(isEnabled ? Theme.paper : Theme.textFaint)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 18)
+            .padding(.vertical, 17)
             .background(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(isEnabled ? Theme.volt : Theme.surface)
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(isEnabled ? Theme.pine : Theme.ink.opacity(0.08))
             )
             .opacity(configuration.isPressed ? 0.85 : 1)
             .scaleEffect(configuration.isPressed ? 0.98 : 1)
@@ -83,24 +86,22 @@ struct VoltButtonStyle: ButtonStyle {
     }
 }
 
-/// Full-width low-emphasis button: graphite fill, tinted text.
+/// Full-width low-emphasis button: white fill, tinted text.
 struct GhostButtonStyle: ButtonStyle {
-    var tint: Color = .white
+    var tint: Color = Theme.ink
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(.headline, design: .rounded).weight(.bold))
-            .textCase(.uppercase)
-            .kerning(1.2)
+            .font(.headline.weight(.semibold))
             .foregroundStyle(tint)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 18)
+            .padding(.vertical, 17)
             .background(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(Theme.surface)
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Theme.card)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 18, style: .continuous)
-                            .strokeBorder(Theme.cardStroke, lineWidth: 1)
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .strokeBorder(Theme.hairline, lineWidth: 1)
                     )
             )
             .opacity(configuration.isPressed ? 0.8 : 1)
@@ -111,7 +112,7 @@ struct GhostButtonStyle: ButtonStyle {
 
 // MARK: - Selection chip
 
-/// A selectable pill used for the type and duration pickers.
+/// A selectable pill used for the type and batch pickers.
 struct ChoiceChip: View {
     let title: String
     let isSelected: Bool
@@ -120,17 +121,17 @@ struct ChoiceChip: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.system(.subheadline, design: .rounded).weight(.bold))
-                .foregroundStyle(isSelected ? .white : Theme.textSecondary)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(isSelected ? Theme.pine : Theme.textSecondary)
                 .padding(.vertical, 12)
                 .frame(maxWidth: .infinity)
                 .background(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(isSelected ? Theme.surfaceBright : .clear)
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(isSelected ? Theme.pine.opacity(0.10) : .clear)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
                                 .strokeBorder(
-                                    isSelected ? Color.white.opacity(0.16) : .clear,
+                                    isSelected ? Theme.pine.opacity(0.5) : Theme.hairline,
                                     lineWidth: 1
                                 )
                         )

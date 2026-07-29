@@ -1,5 +1,9 @@
 import SwiftUI
 
+/// The live workout screen. Built to be read from the floor: the phone lies
+/// flat while the user stands, so the two things that matter — the chime
+/// countdown and the reps done — are giant numerals stacked down the middle,
+/// nothing tucked in corners.
 struct TimerView: View {
     @Environment(WorkoutStore.self) private var workoutStore
     @Environment(\.dismiss) private var dismiss
@@ -15,10 +19,14 @@ struct TimerView: View {
         _engine = State(initialValue: WorkoutEngine(plan: plan))
     }
 
-    /// Color of the live ring and its glow for the current phase.
-    private var ringColor: Color {
-        if engine.phase == .paused { return .white.opacity(0.35) }
-        return engine.isCountingDown ? Theme.amber : Theme.volt
+    private var accent: Color {
+        if engine.phase == .paused { return Theme.textFaint }
+        return engine.isCountingDown ? Theme.clay : Theme.pine
+    }
+
+    /// Whole seconds left in the interval, rounded up so it never shows 0 early.
+    private var wholeSecondsRemaining: Int {
+        Int(engine.timeRemaining.rounded(.up))
     }
 
     var body: some View {
@@ -28,23 +36,23 @@ struct TimerView: View {
 
             Spacer()
 
-            intervalRing
+            timerBlock
 
             Spacer()
 
-            repProgress
-                .padding(.horizontal, 36)
-                .padding(.bottom, 28)
+            repBlock
+
+            Spacer()
 
             controls
                 .padding(.horizontal, 24)
                 .padding(.bottom, 12)
         }
-        .inkBackground()
+        .paperBackground()
         .navigationBarBackButtonHidden(true)
-        .toolbarBackground(Theme.ink, for: .navigationBar)
+        .toolbarBackground(Theme.paper, for: .navigationBar)
         .onAppear {
-            engine.onRepStart = { chimePlayer.play() }
+            engine.onChime = { chimePlayer.play() }
         }
         .onChange(of: engine.phase) { _, newPhase in
             UIApplication.shared.isIdleTimerDisabled =
@@ -80,101 +88,94 @@ struct TimerView: View {
             switch engine.phase {
             case .ready:
                 Text("Ready")
-                    .overline(color: Theme.volt)
+                    .overline(color: Theme.pine)
             case .countingDown:
                 Text("Get Ready")
-                    .overline(color: Theme.amber)
+                    .overline(color: Theme.clay)
             case .running:
                 Text("Working")
-                    .overline(color: Theme.volt)
+                    .overline(color: Theme.pine)
             case .paused:
                 Text("Paused")
                     .overline(color: Theme.textSecondary)
             case .finished:
                 Text("Done")
-                    .overline(color: Theme.volt)
+                    .overline(color: Theme.pine)
             }
 
-            Text("\(plan.targetReps) × \(plan.burpeeType.rawValue) · \(plan.secondsPerRep, format: .number.precision(.fractionLength(1)))s/rep")
+            Text("\(plan.targetReps) × \(plan.burpeeType.rawValue) · \(plan.repsPerChime) per chime · every \(plan.secondsPerChime, format: .number.precision(.fractionLength(0)))s")
                 .font(.footnote.weight(.medium))
                 .foregroundStyle(Theme.textSecondary)
                 .monospacedDigit()
         }
     }
 
-    private var intervalRing: some View {
-        ZStack {
-            Circle()
-                .stroke(Color.white.opacity(0.06), lineWidth: 16)
-
-            Circle()
-                .trim(from: 0, to: engine.phase == .ready ? 1 : engine.intervalFractionRemaining)
-                .stroke(ringColor, style: StrokeStyle(lineWidth: 16, lineCap: .round))
-                .rotationEffect(.degrees(-90))
-                .shadow(color: ringColor.opacity(0.45), radius: 18)
-                .animation(.linear(duration: 0.05), value: engine.intervalFractionRemaining)
-                .animation(.easeOut(duration: 0.3), value: ringColor)
-
-            VStack(spacing: 6) {
-                if engine.phase == .ready {
-                    Text("\(plan.targetReps)")
-                        .font(Theme.display(72))
-                        .monospacedDigit()
-                        .foregroundStyle(.white)
-                    Text("reps to go")
-                        .overline()
-                } else {
-                    Text(engine.timeRemaining, format: .number.precision(.fractionLength(1)))
-                        .font(Theme.display(76))
-                        .monospacedDigit()
-                        .foregroundStyle(.white)
-                        .contentTransition(.numericText(countsDown: true))
-                    Text(engine.isCountingDown ? "starting in" : "seconds")
-                        .overline()
-                }
-            }
-        }
-        .frame(width: 290, height: 290)
-        .padding(.horizontal)
-    }
-
-    private var repProgress: some View {
+    /// Chime countdown: giant seconds over a slim progress bar.
+    private var timerBlock: some View {
         VStack(spacing: 10) {
-            HStack {
-                Text("Rep")
+            if engine.phase == .ready {
+                Text(Duration.seconds(plan.totalDuration), format: .time(pattern: .minuteSecond))
+                    .font(Theme.display(88))
+                    .monospacedDigit()
+                    .foregroundStyle(Theme.ink)
+                Text("on the clock")
                     .overline()
-                Spacer()
-                HStack(spacing: 2) {
-                    Text("\(engine.currentRep)")
-                        .font(Theme.display(22))
-                        .foregroundStyle(.white)
-                        .contentTransition(.numericText())
-                    Text(" / \(plan.targetReps)")
-                        .font(.system(.subheadline, design: .rounded).weight(.bold))
-                        .foregroundStyle(Theme.textSecondary)
-                }
-                .monospacedDigit()
+            } else {
+                Text("\(wholeSecondsRemaining)")
+                    .font(Theme.display(96))
+                    .monospacedDigit()
+                    .foregroundStyle(Theme.ink)
+                    .contentTransition(.numericText(countsDown: true))
+                    .animation(.linear(duration: 0.1), value: wholeSecondsRemaining)
+                Text(engine.isCountingDown ? "starting in" : "next chime")
+                    .overline()
             }
 
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     Capsule()
-                        .fill(Color.white.opacity(0.08))
+                        .fill(Theme.ink.opacity(0.08))
                     Capsule()
-                        .fill(Theme.volt)
+                        .fill(accent)
                         .frame(
-                            width: max(
-                                0,
-                                geo.size.width * Double(engine.completedReps) / Double(max(plan.targetReps, 1))
-                            )
+                            width: geo.size.width * (engine.phase == .ready ? 1 : engine.intervalFractionRemaining)
                         )
-                        .animation(.easeOut(duration: 0.3), value: engine.completedReps)
+                        .animation(.linear(duration: 0.05), value: engine.intervalFractionRemaining)
+                        .animation(.easeOut(duration: 0.3), value: accent)
                 }
             }
-            .frame(height: 6)
+            .frame(height: 8)
+            .padding(.horizontal, 56)
+            .padding(.top, 6)
         }
-        .opacity(engine.phase == .ready ? 0 : 1)
-        .animation(.easeOut(duration: 0.25), value: engine.phase)
+    }
+
+    /// Reps done: the biggest number on screen.
+    private var repBlock: some View {
+        VStack(spacing: 4) {
+            if engine.phase == .ready {
+                Text("\(plan.targetReps)")
+                    .font(Theme.display(120))
+                    .monospacedDigit()
+                    .foregroundStyle(Theme.pine)
+                    .minimumScaleFactor(0.5)
+                    .lineLimit(1)
+                Text("reps ahead")
+                    .overline()
+            } else {
+                Text("\(engine.completedReps)")
+                    .font(Theme.display(132))
+                    .monospacedDigit()
+                    .foregroundStyle(engine.phase == .paused ? Theme.textFaint : Theme.pine)
+                    .contentTransition(.numericText())
+                    .animation(.easeOut(duration: 0.3), value: engine.completedReps)
+                    .minimumScaleFactor(0.5)
+                    .lineLimit(1)
+                Text("of \(plan.targetReps) done")
+                    .overline(color: Theme.textSecondary)
+            }
+        }
+        .padding(.horizontal, 24)
     }
 
     private var controls: some View {
@@ -189,7 +190,7 @@ struct TimerView: View {
                 Button("Start") {
                     engine.start()
                 }
-                .buttonStyle(VoltButtonStyle())
+                .buttonStyle(PrimaryButtonStyle())
 
             case .countingDown, .running, .paused:
                 Button("Stop") {
@@ -200,13 +201,13 @@ struct TimerView: View {
                         engine.stop()
                     }
                 }
-                .buttonStyle(GhostButtonStyle(tint: Theme.coral))
+                .buttonStyle(GhostButtonStyle(tint: Theme.rust))
 
                 if engine.phase == .paused {
                     Button("Resume") {
                         engine.resume()
                     }
-                    .buttonStyle(VoltButtonStyle())
+                    .buttonStyle(PrimaryButtonStyle())
                 } else {
                     Button("Pause") {
                         engine.pause()
@@ -223,7 +224,7 @@ struct TimerView: View {
 
 #Preview {
     NavigationStack {
-        TimerView(plan: WorkoutPlan(targetReps: 10, burpeeType: .sixCount, totalDuration: 120))
+        TimerView(plan: WorkoutPlan(targetReps: 10, burpeeType: .sixCount, repsPerChime: 3, totalDuration: 120))
     }
     .environment(WorkoutStore(fileURL: URL.temporaryDirectory.appending(path: "preview-workouts.json")))
 }

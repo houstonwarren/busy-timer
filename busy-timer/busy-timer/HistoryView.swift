@@ -34,10 +34,10 @@ struct HistoryView: View {
                 .scrollContentBackground(.hidden)
             }
         }
-        .inkBackground()
+        .paperBackground()
         .navigationTitle("History")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(Theme.ink, for: .navigationBar)
+        .toolbarBackground(Theme.paper, for: .navigationBar)
     }
 
     private var statTiles: some View {
@@ -51,11 +51,11 @@ struct HistoryView: View {
         VStack(spacing: 14) {
             Image(systemName: "figure.strengthtraining.functional")
                 .font(.system(size: 44, weight: .medium))
-                .foregroundStyle(Theme.volt)
-            Text("No workouts yet")
-                .font(Theme.display(24))
-                .foregroundStyle(.white)
-            Text("Finish a workout and it will show up here.")
+                .foregroundStyle(Theme.pine)
+            Text("Nothing yet")
+                .font(Theme.display(26))
+                .foregroundStyle(Theme.ink)
+            Text("Your first twenty minutes will land here.")
                 .font(.subheadline)
                 .foregroundStyle(Theme.textSecondary)
         }
@@ -72,7 +72,7 @@ private struct StatTile: View {
             Text(value)
                 .font(Theme.display(32))
                 .monospacedDigit()
-                .foregroundStyle(Theme.volt)
+                .foregroundStyle(Theme.pine)
             Text(label)
                 .overline()
         }
@@ -91,8 +91,8 @@ private struct WorkoutRow: View {
             HStack(alignment: .firstTextBaseline) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(workout.date, format: .dateTime.month().day().year())
-                        .font(.system(.subheadline, design: .rounded).weight(.bold))
-                        .foregroundStyle(.white)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Theme.ink)
                     Text("\(workout.burpeeType.rawValue) · \(workout.secondsPerRep, format: .number.precision(.fractionLength(1)))s/rep")
                         .font(.caption)
                         .foregroundStyle(Theme.textSecondary)
@@ -103,9 +103,9 @@ private struct WorkoutRow: View {
                 HStack(alignment: .firstTextBaseline, spacing: 2) {
                     Text("\(workout.completedReps)")
                         .font(Theme.display(24))
-                        .foregroundStyle(hitTarget ? Theme.volt : .white)
+                        .foregroundStyle(hitTarget ? Theme.pine : Theme.ink)
                     Text("/ \(workout.targetReps)")
-                        .font(.system(.footnote, design: .rounded).weight(.bold))
+                        .font(.footnote.weight(.semibold))
                         .foregroundStyle(Theme.textSecondary)
                 }
                 .monospacedDigit()
@@ -114,9 +114,9 @@ private struct WorkoutRow: View {
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     Capsule()
-                        .fill(Color.white.opacity(0.08))
+                        .fill(Theme.ink.opacity(0.08))
                     Capsule()
-                        .fill(hitTarget ? Theme.volt : Theme.amber)
+                        .fill(hitTarget ? Theme.pine : Theme.clay)
                         .frame(width: geo.size.width * min(1, workout.completionFraction))
                 }
             }

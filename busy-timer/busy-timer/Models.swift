@@ -7,14 +7,23 @@ enum BurpeeType: String, Codable, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
-/// The parameters for a workout about to be performed.
+/// The parameters for a workout about to be performed. Duration is fixed at
+/// twenty minutes — the whole idea of the app — so the only choices are the
+/// target, the burpee style, and how many reps each chime asks for.
 struct WorkoutPlan: Hashable {
     var targetReps: Int
     var burpeeType: BurpeeType
-    var totalDuration: TimeInterval
+    var repsPerChime: Int = 1
+    var totalDuration: TimeInterval = 20 * 60
 
     var secondsPerRep: TimeInterval {
         totalDuration / Double(targetReps)
+    }
+
+    /// Interval between chimes for a full batch (the final batch may be
+    /// shorter if the target isn't divisible by `repsPerChime`).
+    var secondsPerChime: TimeInterval {
+        secondsPerRep * Double(min(repsPerChime, targetReps))
     }
 }
 

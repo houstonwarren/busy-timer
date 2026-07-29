@@ -24,23 +24,23 @@ struct WorkoutSummaryView: View {
     var body: some View {
         VStack(spacing: 24) {
             Capsule()
-                .fill(Color.white.opacity(0.15))
+                .fill(Theme.ink.opacity(0.15))
                 .frame(width: 36, height: 5)
                 .padding(.top, 10)
 
             VStack(spacing: 12) {
                 ZStack {
                     Circle()
-                        .fill((finishedAll ? Theme.volt : Theme.amber).opacity(0.12))
+                        .fill((finishedAll ? Theme.pine : Theme.clay).opacity(0.12))
                         .frame(width: 84, height: 84)
-                    Image(systemName: finishedAll ? "trophy.fill" : "flag.checkered")
+                    Image(systemName: finishedAll ? "checkmark" : "flag.checkered")
                         .font(.system(size: 34, weight: .semibold))
-                        .foregroundStyle(finishedAll ? Theme.volt : Theme.amber)
+                        .foregroundStyle(finishedAll ? Theme.pine : Theme.clay)
                 }
 
                 Text(finishedAll ? "Workout Complete" : "Stopped Early")
-                    .font(Theme.display(26))
-                    .foregroundStyle(.white)
+                    .font(Theme.display(28))
+                    .foregroundStyle(Theme.ink)
 
                 Text("Timer prompted \(promptedReps) of \(plan.targetReps) \(plan.burpeeType.rawValue) burpees")
                     .font(.footnote)
@@ -54,7 +54,7 @@ struct WorkoutSummaryView: View {
                     .overline()
 
                 HStack(spacing: 24) {
-                    RepAdjustButton(systemImage: "minus") {
+                    AdjustButton(systemImage: "minus") {
                         completedReps = max(0, completedReps - 1)
                     }
 
@@ -63,12 +63,12 @@ struct WorkoutSummaryView: View {
                         .focused($repsFocused)
                         .font(Theme.display(52))
                         .monospacedDigit()
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Theme.ink)
                         .multilineTextAlignment(.center)
-                        .tint(Theme.volt)
+                        .tint(Theme.pine)
                         .frame(width: 130)
 
-                    RepAdjustButton(systemImage: "plus") {
+                    AdjustButton(systemImage: "plus") {
                         completedReps = min(999, completedReps + 1)
                     }
                 }
@@ -79,46 +79,26 @@ struct WorkoutSummaryView: View {
             Spacer(minLength: 0)
 
             VStack(spacing: 4) {
-                Button("Save Workout") {
+                Button("Save workout") {
                     repsFocused = false
                     onComplete(completedReps)
                 }
-                .buttonStyle(VoltButtonStyle())
+                .buttonStyle(PrimaryButtonStyle())
 
                 Button("Discard") {
                     onComplete(nil)
                 }
-                .font(.system(.subheadline, design: .rounded).weight(.bold))
-                .foregroundStyle(Theme.coral)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(Theme.rust)
                 .padding(.vertical, 12)
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 8)
         }
-        .inkBackground()
+        .paperBackground()
         .presentationDetents([.large])
-        .presentationBackground(Theme.ink)
+        .presentationBackground(Theme.paper)
         .presentationDragIndicator(.hidden)
-    }
-}
-
-private struct RepAdjustButton: View {
-    let systemImage: String
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            Image(systemName: systemImage)
-                .font(.system(size: 18, weight: .bold))
-                .foregroundStyle(.white)
-                .frame(width: 48, height: 48)
-                .background(
-                    Circle()
-                        .fill(Theme.surfaceBright)
-                        .overlay(Circle().strokeBorder(Theme.cardStroke, lineWidth: 1))
-                )
-        }
-        .buttonStyle(.plain)
     }
 }
 
