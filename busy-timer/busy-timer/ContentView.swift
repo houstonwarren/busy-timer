@@ -59,6 +59,12 @@ struct ContentView: View {
                 .padding(.bottom, 10)
                 .background(Theme.paper.opacity(0.94))
             }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") { repsFocused = false }
+                }
+            }
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(item: $activePlan) { plan in
                 TimerView(plan: plan)
@@ -158,6 +164,7 @@ struct ContentView: View {
                 TextField("0", value: $targetReps, format: .number)
                     .keyboardType(.numberPad)
                     .focused($repsFocused)
+                    .simultaneousGesture(TapGesture().onEnded { targetReps = nil })
                     .font(Theme.display(84))
                     .foregroundStyle(Theme.ink)
                     .multilineTextAlignment(.center)

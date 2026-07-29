@@ -42,9 +42,15 @@ struct TimerView: View {
         }
     }
 
-    /// What the countdown is counting toward, in the user's terms.
+    /// What the countdown is counting toward, in the user's terms. Before
+    /// the start it spells out the pace the plan implies.
     private var countdownLabel: String {
-        if engine.phase == .ready { return "on the clock" }
+        if engine.phase == .ready {
+            let secs = String(format: "%.1f", plan.secondsPerChime)
+            return plan.repsPerChime == 1
+                ? "1 rep every \(secs)s"
+                : "\(plan.repsPerChime) reps every \(secs)s"
+        }
         if engine.isCountingDown { return "starting in" }
         if plan.repsPerChime == 1 { return "current rep" }
         return "current set · \(engine.repsThisChime) reps"
