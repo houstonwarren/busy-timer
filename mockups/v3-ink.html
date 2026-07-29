@@ -1,0 +1,117 @@
+<meta charset="utf-8">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#c9c7c2; font-family:Futura,"Helvetica Neue",sans-serif; display:flex; flex-direction:column; align-items:center; padding:20px; gap:14px; }
+  h1 { font-size:15px; letter-spacing:3px; color:#3a3a36; font-weight:600; font-family:"Helvetica Neue"; }
+  .row { display:flex; gap:28px; }
+  .phone { width:390px; height:844px; border-radius:46px; overflow:hidden; position:relative; background:#FBFAF6; box-shadow:0 18px 50px rgba(0,0,0,.3); padding:56px 26px 30px; display:flex; flex-direction:column; }
+  .cap { font-size:11px; letter-spacing:2px; color:#55534d; font-weight:600; font-family:"Helvetica Neue"; }
+  .red { color:#E2452D; } .blue { color:#2D5FE2; }
+  .lbl { font-size:12px; letter-spacing:2.5px; color:#141414; text-transform:uppercase; font-family:"Helvetica Neue"; font-weight:600; }
+  .rule { border-top:1.5px solid #141414; }
+  .topbar { display:flex; justify-content:space-between; align-items:baseline; }
+  .wordmark { font-size:20px; letter-spacing:1px; color:#141414; font-weight:500; }
+  .hero { margin-top:40px; }
+  .hero .line { font-size:44px; line-height:1.06; color:#141414; font-weight:500; letter-spacing:-1px; }
+  .hero .line b { color:#E2452D; font-weight:500; }
+  .section { margin-top:26px; padding-top:14px; }
+  .sechead { display:flex; justify-content:space-between; align-items:baseline; }
+  .target { display:flex; align-items:center; justify-content:space-between; margin-top:6px; }
+  .stepbtn { width:48px; height:48px; background:#141414; color:#FBFAF6; border-radius:0; display:flex; align-items:center; justify-content:center; font-size:22px; }
+  .target .num { font-size:88px; color:#141414; font-weight:500; letter-spacing:-3px; }
+  .tabs { display:flex; gap:0; margin-top:10px; border:1.5px solid #141414; width:fit-content; }
+  .tab { font-size:15px; color:#141414; padding:10px 22px; }
+  .tab.on { background:#141414; color:#FBFAF6; }
+  .rings { display:flex; gap:0; margin-top:10px; border:1.5px solid #141414; width:fit-content; }
+  .ring { width:52px; padding:10px 0; text-align:center; font-size:16px; color:#141414; border-right:1.5px solid #141414; }
+  .ring:last-child { border-right:none; }
+  .ring.on { background:#2D5FE2; color:#fff; }
+  .footer { margin-top:auto; }
+  .pace { display:flex; justify-content:space-between; align-items:baseline; padding:12px 2px; font-size:13px; letter-spacing:1px; color:#141414; }
+  .pace b { font-size:24px; font-weight:500; }
+  .start { background:#E2452D; padding:20px 22px; text-align:center; color:#FBFAF6; font-size:17px; letter-spacing:3px; }
+  /* timer */
+  .status { display:flex; justify-content:space-between; align-items:baseline; border-bottom:1.5px solid #141414; padding-bottom:12px; }
+  .status .word { font-size:18px; color:#141414; }
+  .status .meta { font-size:10px; letter-spacing:1.5px; color:#8a877c; font-family:"Helvetica Neue"; }
+  .count { margin-top:34px; display:flex; align-items:baseline; gap:10px; }
+  .count .n { font-size:140px; line-height:1; color:#141414; font-weight:500; letter-spacing:-6px; }
+  .count .n small { font-size:48px; color:#c9c5b8; letter-spacing:-1px; }
+  .count .sub { font-size:12px; letter-spacing:2.5px; color:#8a877c; text-transform:uppercase; font-family:"Helvetica Neue"; font-weight:600; }
+  .clockbar { margin-top:18px; height:6px; background:#eae7dc; position:relative; }
+  .clockbar i { position:absolute; inset:0; right:26%; background:#E2452D; }
+  .grid { margin-top:36px; display:grid; grid-template-columns:repeat(15,15px); justify-content:space-between; row-gap:12px; }
+  .d { width:11px; height:11px; border-radius:50%; background:#eae7dc; }
+  .d.f { background:#2D5FE2; }
+  .d.now { background:#E2452D; }
+  .bigrep { margin-top:32px; display:flex; align-items:baseline; }
+  .bigrep .n { font-size:110px; line-height:1; color:#141414; font-weight:500; letter-spacing:-4px; }
+  .bigrep .n b { color:#2D5FE2; font-weight:500; }
+  .bigrep .of { font-size:36px; color:#c9c5b8; margin-left:6px; }
+  .bigrep .togo { margin-left:auto; text-align:right; }
+  .bigrep .togo .tn { font-size:36px; color:#141414; font-weight:500; display:block; }
+  .bigrep .togo .tl { font-size:11px; letter-spacing:2px; color:#8a877c; text-transform:uppercase; font-family:"Helvetica Neue"; font-weight:600; }
+  .ctrl { margin-top:auto; display:flex; gap:0; }
+  .ctrl div { flex:1; padding:18px 0; text-align:center; font-size:14px; letter-spacing:3px; border:1.5px solid #141414; color:#141414; }
+  .ctrl .pause { background:#141414; color:#FBFAF6; }
+</style>
+<h1>V3 · INK — black first, color only where it means something</h1>
+<div class="row">
+  <div style="text-align:center">
+    <div class="phone">
+      <div class="topbar">
+        <div class="wordmark">busy timer<span class="red">.</span></div>
+        <div class="lbl">history</div>
+      </div>
+      <div class="hero">
+        <div class="line">Twenty minutes<b>.</b></div>
+        <div class="line">Just burpees<b>.</b></div>
+      </div>
+      <div class="section rule">
+        <div class="sechead"><span class="lbl">target reps</span><span class="lbl" style="color:#E2452D">last 75</span></div>
+        <div class="target"><div class="stepbtn">−</div><div class="num">75</div><div class="stepbtn">+</div></div>
+      </div>
+      <div class="section rule">
+        <span class="lbl">burpee type</span>
+        <div class="tabs"><div class="tab on">6-count</div><div class="tab">10-count</div></div>
+      </div>
+      <div class="section rule">
+        <span class="lbl">reps per chime</span>
+        <div class="rings"><div class="ring">1</div><div class="ring on">2</div><div class="ring">3</div><div class="ring">5</div></div>
+      </div>
+      <div class="footer">
+        <div class="pace rule"><span class="lbl">your pace</span><span><b>2</b> reps every <b class="red">32.0s</b></span></div>
+        <div class="start">START WORKOUT</div>
+      </div>
+    </div>
+    <p class="cap" style="margin-top:10px">HOME</p>
+  </div>
+  <div style="text-align:center">
+    <div class="phone">
+      <div class="status"><span class="word">working<span class="red">.</span></span><span class="meta">75 × 6-COUNT · 2 PER CHIME</span></div>
+      <div class="count">
+        <div>
+          <div class="n">21<small>.7</small></div>
+          <div class="sub">next set · 2 reps</div>
+        </div>
+      </div>
+      <div class="clockbar"><i></i></div>
+      <div class="grid" id="grid"></div>
+      <div class="bigrep">
+        <span class="n"><b>27</b></span><span class="of">/75</span>
+        <span class="togo"><span class="tn">48</span><span class="tl">to go</span></span>
+      </div>
+      <div class="ctrl"><div>STOP</div><div class="pause">PAUSE</div></div>
+    </div>
+    <p class="cap" style="margin-top:10px">TIMER</p>
+  </div>
+</div>
+<script>
+  // 75 solid dots, no outlines: done blue, this set red, remaining paper-grey
+  const g = document.getElementById('grid');
+  for (let i = 0; i < 75; i++) {
+    const d = document.createElement('div');
+    d.className = i < 27 ? 'd f' : (i < 29 ? 'd now' : 'd');
+    g.appendChild(d);
+  }
+</script>

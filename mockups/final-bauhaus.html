@@ -1,0 +1,164 @@
+<meta charset="utf-8">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#c9c7c2; font-family:Futura,"Helvetica Neue",sans-serif; display:flex; flex-direction:column; align-items:center; padding:20px; gap:14px; }
+  h1 { font-size:15px; letter-spacing:3px; color:#3a3a36; font-weight:600; font-family:"Helvetica Neue"; }
+  .row { display:flex; gap:24px; }
+  .phone { width:390px; height:844px; border-radius:46px; overflow:hidden; position:relative; background:#F7F4EC; box-shadow:0 18px 50px rgba(0,0,0,.3); padding:56px 26px 30px; display:flex; flex-direction:column; text-align:left; }
+  .cap { font-size:11px; letter-spacing:2px; color:#55534d; font-weight:600; font-family:"Helvetica Neue"; text-align:center; }
+  .red { color:#E2452D; } .blue { color:#2D5FE2; }
+  .lbl { font-size:11px; letter-spacing:2.5px; color:#141414; text-transform:uppercase; font-family:"Helvetica Neue"; font-weight:600; }
+  .rule { border-top:1.5px solid #141414; }
+  .topbar { display:flex; justify-content:space-between; align-items:center; }
+  .wordmark { font-size:20px; letter-spacing:1px; color:#141414; font-weight:500; }
+  /* history: quiet icon-only button, subordinate to the wordmark */
+  .histbtn { width:36px; height:36px; border:1.5px solid #141414; display:flex; align-items:center; justify-content:center; }
+  .hicon { width:16px; height:16px; border:1.5px solid #141414; border-radius:50%; position:relative; }
+  .hicon i { position:absolute; left:6.3px; top:3px; width:1.5px; height:5px; background:#141414; }
+  .hicon b { position:absolute; left:6.3px; top:6.6px; width:4.5px; height:1.5px; background:#141414; }
+  /* compact brief: same size every visit, first launch or the fiftieth */
+  .brief { margin-top:26px; display:flex; align-items:center; gap:14px; }
+  .badge { width:48px; height:48px; border-radius:50%; background:#E2452D; color:#F7F4EC; display:flex; flex-direction:column; align-items:center; justify-content:center; flex-shrink:0; }
+  .badge .n { font-size:19px; font-weight:500; line-height:1; }
+  .badge .u { font-size:7px; letter-spacing:1.5px; }
+  .briefline { font-size:16px; color:#141414; font-weight:500; }
+  .briefline b { color:#E2452D; font-weight:500; }
+  .briefsub { font-size:12px; color:#8a877c; letter-spacing:.4px; margin-top:2px; }
+  .section { margin-top:30px; padding-top:16px; }
+  .sechead { display:flex; justify-content:space-between; align-items:baseline; }
+  .target { display:flex; align-items:center; justify-content:space-between; margin-top:8px; }
+  .stepbtn { width:52px; height:52px; border:2px solid #141414; display:flex; align-items:center; justify-content:center; font-size:23px; color:#141414; }
+  .target .num { font-size:92px; color:#141414; font-weight:500; letter-spacing:-3px; }
+  .tabs { display:flex; margin-top:12px; border:1.5px solid #141414; width:fit-content; }
+  .tab { font-size:15px; color:#141414; padding:11px 24px; }
+  .tab.on { background:#141414; color:#F7F4EC; }
+  .rings { display:flex; margin-top:12px; border:1.5px solid #141414; width:fit-content; }
+  .ring { width:52px; padding:11px 0; text-align:center; font-size:16px; color:#141414; border-right:1.5px solid #141414; }
+  .ring:last-child { border-right:none; }
+  .ring.on { background:#141414; color:#F7F4EC; }
+  .footer { margin-top:auto; }
+  .pace { display:flex; justify-content:space-between; align-items:baseline; padding:12px 2px; font-size:13px; letter-spacing:1px; color:#141414; }
+  .pace b { font-size:22px; font-weight:500; }
+  .start { background:#141414; padding:20px 22px; display:flex; align-items:center; gap:14px; color:#F7F4EC; font-size:16px; letter-spacing:2.5px; }
+  .start .go { width:13px; height:13px; border-radius:50%; background:#E2452D; }
+  /* timer — countdown and counters fixed size; only the dots resize */
+  .status { display:flex; justify-content:space-between; align-items:baseline; border-bottom:1.5px solid #141414; padding-bottom:12px; }
+  .status .word { font-size:18px; color:#141414; }
+  .status .meta { font-size:10px; letter-spacing:1.5px; color:#8a877c; font-family:"Helvetica Neue"; }
+  .count { margin-top:30px; }
+  .count .n { font-size:124px; line-height:1; color:#141414; font-weight:500; letter-spacing:-5px; }
+  .count .n small { font-size:44px; color:#8a877c; letter-spacing:-1px; }
+  .count .sub { font-size:12px; letter-spacing:2.5px; color:#6d6a62; margin-top:6px; text-transform:uppercase; font-family:"Helvetica Neue"; font-weight:600; }
+  .clockbar { margin-top:16px; height:8px; background:#e3dfd2; position:relative; }
+  .clockbar i { position:absolute; inset:0; right:26%; background:#E2452D; }
+  /* fixed-height grid box; JS sizes dots to fill it without overlap */
+  .gridbox { margin-top:26px; height:266px; display:flex; align-items:flex-start; }
+  .grid { display:grid; }
+  .d { border-radius:50%; border:2px solid #141414; }
+  .d.f { background:#2D5FE2; border-color:#2D5FE2; }
+  .d.now { background:#E2452D; border-color:#E2452D; }
+  .gridlbl { display:flex; justify-content:space-between; margin-top:14px; align-items:baseline; }
+  .gridlbl .done { font-size:44px; color:#2D5FE2; font-weight:500; }
+  .gridlbl .done small { font-size:20px; color:#a3a094; }
+  .gridlbl .togo { font-size:26px; color:#141414; font-weight:500; }
+  .gridlbl .togo small { font-size:12px; letter-spacing:2px; color:#8a877c; font-family:"Helvetica Neue"; font-weight:600; text-transform:uppercase; margin-left:6px; }
+  .ctrl { margin-top:auto; display:flex; }
+  .ctrl .stop { flex:0 0 35%; padding:18px 0; text-align:center; font-size:14px; letter-spacing:2.5px; border:1.5px solid #141414; color:#141414; }
+  .ctrl .pause { flex:1; padding:18px 0; text-align:center; font-size:14px; letter-spacing:2.5px; border:1.5px solid #141414; border-left:none; background:#141414; color:#F7F4EC; }
+</style>
+<h1>FINAL v2 · compact home + dot grid at 75 and 250 reps</h1>
+<div class="row">
+  <div>
+    <div class="phone">
+      <div class="topbar">
+        <div class="wordmark">busy timer<span class="red">.</span></div>
+        <div class="histbtn"><span class="hicon"><i></i><b></b></span></div>
+      </div>
+      <div class="brief">
+        <div class="badge"><span class="n">20</span><span class="u">MIN</span></div>
+        <div>
+          <div class="briefline">just burpees<b>.</b></div>
+          <div class="briefsub">four times a week, forever.</div>
+        </div>
+      </div>
+      <div class="section rule">
+        <div class="sechead"><span class="lbl">target reps</span><span class="lbl" style="color:#8a877c">last 75</span></div>
+        <div class="target"><div class="stepbtn">−</div><div class="num">75</div><div class="stepbtn">+</div></div>
+      </div>
+      <div class="section rule">
+        <span class="lbl">burpee type</span>
+        <div class="tabs"><div class="tab on">6-count</div><div class="tab">10-count</div></div>
+      </div>
+      <div class="section rule">
+        <span class="lbl">reps per chime</span>
+        <div class="rings"><div class="ring">1</div><div class="ring on">2</div><div class="ring">3</div><div class="ring">4</div><div class="ring">5</div></div>
+      </div>
+      <div class="footer">
+        <div class="pace rule"><span class="lbl">your pace</span><span><b>2</b> reps every <b class="red">32.0s</b></span></div>
+        <div class="start"><div class="go"></div>start workout</div>
+      </div>
+    </div>
+    <p class="cap" style="margin-top:10px">HOME · COMPACT BRIEF</p>
+  </div>
+  <div>
+    <div class="phone">
+      <div class="status"><span class="word">working<span class="red">.</span></span><span class="meta">75 × 6-COUNT · 2 PER CHIME</span></div>
+      <div class="count">
+        <div class="n">21<small>.7</small></div>
+        <div class="sub">next set · 2 reps</div>
+      </div>
+      <div class="clockbar"><i></i></div>
+      <div class="gridbox"><div class="grid" data-total="75" data-done="27" data-set="2"></div></div>
+      <div class="gridlbl">
+        <span class="done">27<small> /75</small></span>
+        <span class="togo">48<small>to go</small></span>
+      </div>
+      <div class="ctrl"><div class="stop">stop</div><div class="pause">pause</div></div>
+    </div>
+    <p class="cap" style="margin-top:10px">TIMER · 75 TARGET</p>
+  </div>
+  <div>
+    <div class="phone">
+      <div class="status"><span class="word">working<span class="red">.</span></span><span class="meta">250 × 6-COUNT · 5 PER CHIME</span></div>
+      <div class="count">
+        <div class="n">9<small>.2</small></div>
+        <div class="sub">next set · 5 reps</div>
+      </div>
+      <div class="clockbar"><i style="right:62%"></i></div>
+      <div class="gridbox"><div class="grid" data-total="250" data-done="137" data-set="5"></div></div>
+      <div class="gridlbl">
+        <span class="done">137<small> /250</small></span>
+        <span class="togo">113<small>to go</small></span>
+      </div>
+      <div class="ctrl"><div class="stop">stop</div><div class="pause">pause</div></div>
+    </div>
+    <p class="cap" style="margin-top:10px">TIMER · 250 TARGET (DOTS AUTO-SHRINK)</p>
+  </div>
+</div>
+<script>
+  // fixed box, variable dots: pick the largest dot size whose grid fits the
+  // box both ways — the same rule the SwiftUI layout will use
+  const BOX_W = 338, BOX_H = 266;
+  document.querySelectorAll('.grid').forEach(grid => {
+    const total = +grid.dataset.total, done = +grid.dataset.done, set = +grid.dataset.set;
+    let best = null;
+    for (let cols = 8; cols <= 30; cols++) {
+      const rows = Math.ceil(total / cols);
+      const gap = Math.max(4, Math.round(24 / Math.sqrt(rows)));
+      const dot = Math.floor(Math.min((BOX_W - gap * (cols - 1)) / cols, (BOX_H - gap * (rows - 1)) / rows));
+      if (dot >= 4 && (!best || dot > best.dot)) best = { cols, dot, gap };
+    }
+    grid.style.gridTemplateColumns = `repeat(${best.cols}, ${best.dot}px)`;
+    grid.style.gap = `${best.gap}px ${best.gap}px`;
+    grid.style.width = '100%';
+    grid.style.justifyContent = 'space-between';
+    const border = Math.max(1.2, best.dot / 8);
+    for (let i = 0; i < total; i++) {
+      const d = document.createElement('div');
+      d.className = i < done ? 'd f' : (i < done + set ? 'd now' : 'd');
+      d.style.width = d.style.height = best.dot + 'px';
+      d.style.borderWidth = border + 'px';
+      grid.appendChild(d);
+    }
+  });
+</script>

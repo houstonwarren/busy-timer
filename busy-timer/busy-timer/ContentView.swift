@@ -9,7 +9,7 @@ struct ContentView: View {
     @State private var activePlan: WorkoutPlan?
     @FocusState private var repsFocused: Bool
 
-    private let batchChoices = [1, 2, 3, 5]
+    private let batchChoices = [1, 2, 3, 4, 5]
 
     private var lastWorkout: Workout? {
         workoutStore.lastWorkout(of: burpeeType)
@@ -27,52 +27,50 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 14) {
+                VStack(alignment: .leading, spacing: 0) {
                     header
-                    targetCard
-                    typeCard
-                    batchCard
+                    brief
+                    targetSection
+                    typeSection
+                    batchSection
                 }
-                .padding(.horizontal, 20)
+                .padding(.horizontal, 24)
                 .padding(.bottom, 12)
             }
             .scrollDismissesKeyboard(.interactively)
+            // no panning when everything already fits on screen
+            .scrollBounceBehavior(.basedOnSize)
+            // simultaneous so buttons keep every tap; any touch still drops the keyboard
+            .simultaneousGesture(TapGesture().onEnded {
+                if repsFocused { repsFocused = false }
+            })
             .paperBackground()
             .safeAreaInset(edge: .bottom) {
-                Button {
-                    repsFocused = false
-                    activePlan = draftPlan
-                } label: {
-                    Text("Start workout")
+                VStack(spacing: 0) {
+                    paceRow
+                    Button("start workout") {
+                        repsFocused = false
+                        activePlan = draftPlan
+                    }
+                    .buttonStyle(InkBarButtonStyle(showDot: true))
+                    .disabled(draftPlan == nil)
                 }
-                .buttonStyle(PrimaryButtonStyle())
-                .disabled(draftPlan == nil)
-                .padding(.horizontal, 20)
-                .padding(.top, 8)
-                .background(Theme.paper.opacity(0.92))
+                .padding(.horizontal, 24)
+                .padding(.bottom, 10)
+                .background(Theme.paper.opacity(0.94))
             }
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink {
-                        HistoryView()
-                    } label: {
-                        Image(systemName: "clock.arrow.circlepath")
-                            .font(.body.weight(.semibold))
-                            .foregroundStyle(Theme.textSecondary)
-                    }
-                }
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
                     Button("Done") { repsFocused = false }
-                        .fontWeight(.semibold)
                 }
             }
-            .toolbarBackground(Theme.paper, for: .navigationBar)
+            .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(item: $activePlan) { plan in
                 TimerView(plan: plan)
             }
         }
-        .tint(Theme.pine)
+        .tint(Theme.ink)
         .onAppear { prefillFromHistory() }
         .onChange(of: burpeeType) { prefillFromHistory() }
     }
@@ -88,165 +86,150 @@ struct ContentView: View {
     }
 
     private var header: some View {
-        ZStack(alignment: .bottomLeading) {
-            BreathField()
-                .frame(height: 210)
-                .padding(.horizontal, -20)
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Busy Timer")
-                    .overline(color: Theme.pine)
-                Text("Twenty minutes.\nJust burpees.")
-                    .font(Theme.display(40))
+        HStack {
+            HStack(spacing: 0) {
+                Text("busy timer")
+                    .font(Theme.display(21))
                     .foregroundStyle(Theme.ink)
-                    .lineSpacing(2)
+                Text(".")
+                    .font(Theme.display(21))
+                    .foregroundStyle(Theme.red)
             }
-            .padding(.bottom, 6)
+            Spacer()
+            NavigationLink {
+                HistoryView()
+            } label: {
+                Image(systemName: "clock")
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundStyle(Theme.ink)
+                    .frame(width: 36, height: 36)
+                    .border(Theme.ink, width: 1.5)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
         }
+        .padding(.top, 10)
     }
 
-    private var targetCard: some View {
-        VStack(spacing: 12) {
-            Text("Target Reps")
-                .overline()
-            HStack(spacing: 20) {
-                AdjustButton(systemImage: "minus") {
+    /// The whole pitch in one small strip — same size on every visit.
+    private var brief: some View {
+        HStack(spacing: 14) {
+            ZStack {
+                Circle()
+                    .fill(Theme.red)
+                    .frame(width: 48, height: 48)
+                VStack(spacing: 0) {
+                    Text("20")
+                        .font(Theme.display(17))
+                    Text("MIN")
+                        .font(.system(size: 7, weight: .semibold))
+                        .kerning(1.5)
+                }
+                .foregroundStyle(Theme.paper)
+            }
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 0) {
+                    Text("just burpees")
+                        .font(Theme.display(16))
+                        .foregroundStyle(Theme.ink)
+                    Text(".")
+                        .font(Theme.display(16))
+                        .foregroundStyle(Theme.red)
+                }
+                Text("four times a week, forever.")
+                    .font(.system(size: 12))
+                    .foregroundStyle(Theme.grey)
+            }
+        }
+        .padding(.top, 24)
+        .padding(.bottom, 24)
+    }
+
+    private var targetSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Rule()
+            HStack {
+                Text("target reps").label()
+                Spacer()
+                if let last = lastWorkout {
+                    Text("last \(last.completedReps)").label(color: Theme.grey)
+                }
+            }
+            .padding(.top, 14)
+            HStack(spacing: 16) {
+                SquareStepButton(text: "−") {
                     let next = (targetReps ?? 0) - 1
                     targetReps = next > 0 ? next : nil
                 }
                 TextField("0", value: $targetReps, format: .number)
                     .keyboardType(.numberPad)
                     .focused($repsFocused)
-                    .font(Theme.display(60))
-                    .monospacedDigit()
+                    .simultaneousGesture(TapGesture().onEnded { targetReps = nil })
+                    .font(Theme.display(84))
                     .foregroundStyle(Theme.ink)
                     .multilineTextAlignment(.center)
-                    .tint(Theme.pine)
-                AdjustButton(systemImage: "plus") {
+                    .tint(Theme.red)
+                SquareStepButton(text: "+") {
                     targetReps = min(999, (targetReps ?? 0) + 1)
                 }
             }
-            if let last = lastWorkout {
-                Text("Last \(burpeeType.rawValue): \(last.completedReps) reps")
-                    .font(.footnote.weight(.medium))
-                    .foregroundStyle(Theme.textSecondary)
-            }
+            .padding(.top, 4)
         }
-        .card()
+        .padding(.bottom, 24)
     }
 
-    private var typeCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Burpee Type")
-                .overline()
-            HStack(spacing: 6) {
-                ForEach(BurpeeType.allCases) { type in
-                    ChoiceChip(title: type.rawValue, isSelected: burpeeType == type) {
-                        burpeeType = type
-                    }
-                }
-            }
+    private var typeSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Rule()
+            Text("burpee type")
+                .label()
+                .padding(.top, 14)
+            SegmentedBox(items: BurpeeType.allCases, selection: $burpeeType) { $0.rawValue }
+                .padding(.top, 12)
         }
-        .card(padding: 16)
+        .padding(.bottom, 24)
     }
 
-    private var batchCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Reps Per Chime")
-                .overline()
-            HStack(spacing: 6) {
-                ForEach(batchChoices, id: \.self) { batch in
-                    ChoiceChip(title: "\(batch)", isSelected: repsPerChime == batch) {
-                        repsPerChime = batch
+    private var batchSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Rule()
+            Text("reps per set")
+                .label()
+                .padding(.top, 14)
+            SegmentedBox(items: batchChoices, selection: $repsPerChime) { "\($0)" }
+                .padding(.top, 12)
+        }
+        .padding(.bottom, 24)
+    }
+
+    /// The workout's cadence, spelled out above the start button. Red is the
+    /// time number; everything else stays ink.
+    private var paceRow: some View {
+        VStack(spacing: 0) {
+            Rule()
+            HStack(alignment: .firstTextBaseline) {
+                Text("your pace").label()
+                Spacer()
+                if let plan = draftPlan {
+                    HStack(alignment: .firstTextBaseline, spacing: 5) {
+                        Text("\(plan.repsPerChime)")
+                            .font(Theme.display(22))
+                            .foregroundStyle(Theme.ink)
+                        Text(plan.repsPerChime == 1 ? "rep every" : "reps every")
+                            .font(.system(size: 13))
+                            .foregroundStyle(Theme.ink)
+                        Text("\(plan.secondsPerChime, format: .number.precision(.fractionLength(1)))s")
+                            .font(Theme.display(22))
+                            .foregroundStyle(Theme.red)
                     }
-                }
-            }
-            if let plan = draftPlan {
-                Text("Chime every \(plan.secondsPerChime, format: .number.precision(.fractionLength(0)))s — do \(plan.repsPerChime) each time.")
-                    .font(.footnote.weight(.medium))
-                    .foregroundStyle(Theme.textSecondary)
                     .contentTransition(.numericText())
                     .animation(.easeOut(duration: 0.2), value: plan)
-            } else {
-                Text("Set a target to see your pace.")
-                    .font(.footnote)
-                    .foregroundStyle(Theme.textFaint)
-            }
-        }
-        .card(padding: 16)
-    }
-}
-
-/// Round bordered − / + button flanking the target field.
-struct AdjustButton: View {
-    let systemImage: String
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            Image(systemName: systemImage)
-                .font(.system(size: 17, weight: .bold))
-                .foregroundStyle(Theme.pine)
-                .frame(width: 44, height: 44)
-                .background(
-                    Circle()
-                        .fill(Theme.paper)
-                        .overlay(Circle().strokeBorder(Theme.hairline, lineWidth: 1))
-                )
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-/// The home screen's one flourish: soft discs that swell and settle on a slow
-/// breath cadence behind the headline. Pure ambience — the brand is air and
-/// unhurried time, so nothing here blinks or demands a tap.
-struct BreathField: View {
-    // x/y are fractions of the field; lag staggers each disc's breath.
-    private struct Disc {
-        var x: Double
-        var y: Double
-        var radius: Double
-        var lag: Double
-        var tint: Color
-    }
-
-    private static let discs: [Disc] = [
-        Disc(x: 0.80, y: 0.34, radius: 130, lag: 0.00, tint: Theme.air),
-        Disc(x: 0.58, y: 0.68, radius: 85, lag: 0.28, tint: Theme.sage),
-        Disc(x: 0.95, y: 0.78, radius: 65, lag: 0.55, tint: Theme.air),
-    ]
-
-    var body: some View {
-        TimelineView(.animation(minimumInterval: 1.0 / 30)) { context in
-            Canvas { ctx, size in
-                let t: Double = context.date.timeIntervalSinceReferenceDate
-                // one full breath every 9 seconds
-                for disc in Self.discs {
-                    let breath: Double = (sin((t / 9 - disc.lag) * 2 * .pi - .pi / 2) + 1) / 2
-                    let radius: Double = disc.radius * (0.80 + 0.20 * breath)
-                    let driftX: Double = sin(t / 13 + disc.lag * 7) * 7
-                    let driftY: Double = cos(t / 11 + disc.lag * 5) * 5
-                    let center = CGPoint(
-                        x: Double(size.width) * disc.x + driftX,
-                        y: Double(size.height) * disc.y + driftY
-                    )
-                    let rect = CGRect(
-                        x: center.x - radius, y: center.y - radius,
-                        width: radius * 2, height: radius * 2
-                    )
-                    ctx.fill(
-                        Path(ellipseIn: rect),
-                        with: .radialGradient(
-                            Gradient(colors: [disc.tint.opacity(0.55), disc.tint.opacity(0)]),
-                            center: center,
-                            startRadius: 0,
-                            endRadius: radius
-                        )
-                    )
+                } else {
+                    Text("set a target").label(color: Theme.grey)
                 }
             }
+            .padding(.vertical, 13)
         }
-        .allowsHitTesting(false)
     }
 }
 

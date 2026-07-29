@@ -9,25 +9,19 @@ struct HistoryView: View {
                 emptyState
             } else {
                 List {
-                    statTiles
+                    statRow
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 4, leading: 20, bottom: 12, trailing: 20))
+                        .listRowInsets(EdgeInsets(top: 8, leading: 24, bottom: 18, trailing: 24))
 
-                    Section {
-                        ForEach(workoutStore.workouts) { workout in
-                            WorkoutRow(workout: workout)
-                                .listRowBackground(Color.clear)
-                                .listRowSeparator(.hidden)
-                                .listRowInsets(EdgeInsets(top: 4, leading: 20, bottom: 4, trailing: 20))
-                        }
-                        .onDelete { offsets in
-                            workoutStore.delete(atOffsets: offsets)
-                        }
-                    } header: {
-                        Text("Workouts")
-                            .overline()
-                            .padding(.leading, 4)
+                    ForEach(workoutStore.workouts) { workout in
+                        WorkoutRow(workout: workout)
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
+                            .listRowInsets(EdgeInsets(top: 0, leading: 24, bottom: 18, trailing: 24))
+                    }
+                    .onDelete { offsets in
+                        workoutStore.delete(atOffsets: offsets)
                     }
                 }
                 .listStyle(.plain)
@@ -35,49 +29,42 @@ struct HistoryView: View {
             }
         }
         .paperBackground()
-        .navigationTitle("History")
+        .navigationTitle("history")
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(Theme.paper, for: .navigationBar)
     }
 
-    private var statTiles: some View {
-        HStack(spacing: 12) {
-            StatTile(value: "\(workoutStore.workouts.count)", label: "Workouts")
-            StatTile(value: "\(workoutStore.totalCompletedReps)", label: "Total Burpees")
+    /// Lifetime numbers: blue for earned reps, ink for the rest.
+    private var statRow: some View {
+        VStack(spacing: 0) {
+            HStack(alignment: .firstTextBaseline) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("\(workoutStore.workouts.count)")
+                        .font(Theme.display(40))
+                        .foregroundStyle(Theme.ink)
+                    Text("workouts").label(color: Theme.grey)
+                }
+                Spacer()
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text("\(workoutStore.totalCompletedReps)")
+                        .font(Theme.display(40))
+                        .foregroundStyle(Theme.blue)
+                    Text("total burpees").label(color: Theme.grey)
+                }
+            }
+            Rule()
+                .padding(.top, 14)
         }
     }
 
     private var emptyState: some View {
-        VStack(spacing: 14) {
-            Image(systemName: "figure.strengthtraining.functional")
-                .font(.system(size: 44, weight: .medium))
-                .foregroundStyle(Theme.pine)
-            Text("Nothing yet")
-                .font(Theme.display(26))
-                .foregroundStyle(Theme.ink)
-            Text("Your first twenty minutes will land here.")
-                .font(.subheadline)
-                .foregroundStyle(Theme.textSecondary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-}
-
-private struct StatTile: View {
-    let value: String
-    let label: String
-
-    var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(value)
-                .font(Theme.display(32))
-                .monospacedDigit()
-                .foregroundStyle(Theme.pine)
-            Text(label)
-                .overline()
+            StatusWord(word: "nothing yet")
+            Text("your first twenty minutes will land here.")
+                .font(.system(size: 13))
+                .foregroundStyle(Theme.grey)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .card(padding: 16)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
     }
 }
 
@@ -87,42 +74,39 @@ private struct WorkoutRow: View {
     private var hitTarget: Bool { workout.completedReps >= workout.targetReps }
 
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 10) {
             HStack(alignment: .firstTextBaseline) {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 3) {
                     Text(workout.date, format: .dateTime.month().day().year())
-                        .font(.subheadline.weight(.semibold))
+                        .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(Theme.ink)
                     Text("\(workout.burpeeType.rawValue) · \(workout.secondsPerRep, format: .number.precision(.fractionLength(1)))s/rep")
-                        .font(.caption)
-                        .foregroundStyle(Theme.textSecondary)
+                        .font(.system(size: 11))
+                        .foregroundStyle(Theme.grey)
                 }
-
                 Spacer()
-
-                HStack(alignment: .firstTextBaseline, spacing: 2) {
+                HStack(alignment: .firstTextBaseline, spacing: 3) {
                     Text("\(workout.completedReps)")
                         .font(Theme.display(24))
-                        .foregroundStyle(hitTarget ? Theme.pine : Theme.ink)
-                    Text("/ \(workout.targetReps)")
-                        .font(.footnote.weight(.semibold))
-                        .foregroundStyle(Theme.textSecondary)
+                        .foregroundStyle(hitTarget ? Theme.blue : Theme.ink)
+                    Text("/\(workout.targetReps)")
+                        .font(Theme.display(14))
+                        .foregroundStyle(Theme.grey)
                 }
-                .monospacedDigit()
             }
 
+            // blue = reps done, as everywhere
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
-                    Capsule()
-                        .fill(Theme.ink.opacity(0.08))
-                    Capsule()
-                        .fill(hitTarget ? Theme.pine : Theme.clay)
+                    Rectangle()
+                        .fill(Theme.track)
+                    Rectangle()
+                        .fill(Theme.blue)
                         .frame(width: geo.size.width * min(1, workout.completionFraction))
                 }
             }
             .frame(height: 4)
         }
-        .card(padding: 16)
     }
 }
 
