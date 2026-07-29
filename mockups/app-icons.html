@@ -1,0 +1,107 @@
+<meta charset="utf-8">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#c9c7c2; font-family:"Helvetica Neue",sans-serif; display:flex; flex-direction:column; align-items:center; padding:28px; gap:24px; }
+  h1 { font-size:15px; letter-spacing:3px; color:#3a3a36; font-weight:600; }
+  .row { display:flex; gap:56px; }
+  .col { display:flex; flex-direction:column; align-items:center; gap:18px; }
+  .cap { font-size:11px; letter-spacing:2px; color:#55534d; font-weight:600; max-width:220px; text-align:center; }
+  .icon { width:216px; height:216px; border-radius:48px; background:#F7F4EC; box-shadow:0 10px 30px rgba(0,0,0,.25); display:flex; align-items:center; justify-content:center; }
+  .icon.sm { width:64px; height:64px; border-radius:14px; box-shadow:0 4px 12px rgba(0,0,0,.25); }
+  /* A: split circle */
+  .split { width:128px; height:128px; border-radius:50%; background:linear-gradient(90deg,#2D5FE2 50%,#E2452D 50%); position:relative; }
+  .sm .split { width:38px; height:38px; }
+  /* clock hands set to 20 minutes: hour up, minute at the 4 */
+  .hand { position:absolute; left:50%; bottom:50%; transform-origin:50% 100%; border-radius:99px; }
+  .hand.hr { width:9px; height:34px; margin-left:-4.5px; }
+  .hand.mn { width:9px; height:50px; margin-left:-4.5px; transform:rotate(120deg); }
+  .pin { position:absolute; left:50%; top:50%; width:16px; height:16px; margin:-8px 0 0 -8px; border-radius:50%; }
+  .ink .hand, .ink .pin { background:#141414; }
+  .paper .hand, .paper .pin { background:#F7F4EC; }
+  .sm .hand.hr { width:3px; height:10px; margin-left:-1.5px; }
+  .sm .hand.mn { width:3px; height:15px; margin-left:-1.5px; }
+  .sm .pin { width:5px; height:5px; margin:-2.5px 0 0 -2.5px; }
+  /* B: two dots */
+  .duo { display:flex; gap:20px; }
+  .duo div { width:56px; height:56px; border-radius:50%; }
+  .sm .duo { gap:6px; }
+  .sm .duo div { width:17px; height:17px; }
+  /* C: 4x4 grid, bottom-right red */
+  .grid { display:grid; grid-template-columns:repeat(4,28px); gap:14px; }
+  .grid div { width:28px; height:28px; border-radius:50%; background:#2D5FE2; }
+  .grid div.r { background:#E2452D; }
+  .sm .grid { grid-template-columns:repeat(4,8.5px); gap:4px; }
+  .sm .grid div { width:8.5px; height:8.5px; }
+  /* D/E: 3x3 grids */
+  .grid3 { display:grid; grid-template-columns:repeat(3,36px); gap:16px; }
+  .grid3 div { width:36px; height:36px; border-radius:50%; background:#2D5FE2; }
+  .grid3 div.r { background:#E2452D; }
+  .grid3 div.o { background:transparent; border:3.5px solid #141414; }
+  .sm .grid3 { grid-template-columns:repeat(3,11px); gap:5px; }
+  .sm .grid3 div { width:11px; height:11px; }
+  .sm .grid3 div.o { border-width:1.6px; }
+</style>
+<h1>APP ICON STUDY — the mark, big and at home-screen size</h1>
+<div class="row">
+  <div class="col">
+    <div class="icon"><div class="split"></div></div>
+    <div class="icon sm"><div class="split"></div></div>
+    <p class="cap">A · SPLIT CIRCLE — blue and red halves, time meets reps</p>
+  </div>
+  <div class="col ink">
+    <div class="icon"><div class="split"><span class="hand hr"></span><span class="hand mn"></span><span class="pin"></span></div></div>
+    <div class="icon sm"><div class="split"><span class="hand hr"></span><span class="hand mn"></span><span class="pin"></span></div></div>
+    <p class="cap">A2 · CLOCK — ink hands reading twenty minutes</p>
+  </div>
+  <div class="col paper">
+    <div class="icon"><div class="split"><span class="hand hr"></span><span class="hand mn"></span><span class="pin"></span></div></div>
+    <div class="icon sm"><div class="split"><span class="hand hr"></span><span class="hand mn"></span><span class="pin"></span></div></div>
+    <p class="cap">A3 · CLOCK — paper hands reading twenty minutes</p>
+  </div>
+  <div class="col">
+    <div class="icon"><div class="duo"><div style="background:#2D5FE2"></div><div style="background:#E2452D"></div></div></div>
+    <div class="icon sm"><div class="duo"><div style="background:#2D5FE2"></div><div style="background:#E2452D"></div></div></div>
+    <p class="cap">B · TWO DOTS — done and doing, side by side</p>
+  </div>
+  <div class="col">
+    <div class="icon"><div class="grid">
+      <div></div><div></div><div></div><div></div>
+      <div></div><div></div><div></div><div></div>
+      <div></div><div></div><div></div><div></div>
+      <div></div><div></div><div></div><div class="r"></div>
+    </div></div>
+    <div class="icon sm"><div class="grid">
+      <div></div><div></div><div></div><div></div>
+      <div></div><div></div><div></div><div></div>
+      <div></div><div></div><div></div><div></div>
+      <div></div><div></div><div></div><div class="r"></div>
+    </div></div>
+    <p class="cap">C · THE GRID — 4×4, one set left</p>
+  </div>
+  <div class="col">
+    <div class="icon"><div class="grid3">
+      <div></div><div></div><div></div>
+      <div></div><div></div><div></div>
+      <div></div><div></div><div class="r"></div>
+    </div></div>
+    <div class="icon sm"><div class="grid3">
+      <div></div><div></div><div></div>
+      <div></div><div></div><div></div>
+      <div></div><div></div><div class="r"></div>
+    </div></div>
+    <p class="cap">D · THE GRID — 3×3, one set left</p>
+  </div>
+  <div class="col">
+    <div class="icon"><div class="grid3">
+      <div></div><div></div><div></div>
+      <div></div><div></div><div class="r"></div>
+      <div class="o"></div><div class="o"></div><div class="o"></div>
+    </div></div>
+    <div class="icon sm"><div class="grid3">
+      <div></div><div></div><div></div>
+      <div></div><div></div><div class="r"></div>
+      <div class="o"></div><div class="o"></div><div class="o"></div>
+    </div></div>
+    <p class="cap">E · THE GRID — 3×3 mid-workout, empties still open</p>
+  </div>
+</div>
