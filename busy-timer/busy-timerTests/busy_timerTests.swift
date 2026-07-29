@@ -7,11 +7,13 @@ struct WorkoutEngineTests {
     private func makeEngine(
         reps: Int = 4,
         secondsPerRep: TimeInterval = 10,
-        countdown: TimeInterval = 10
+        countdown: TimeInterval = 10,
+        repsPerChime: Int = 1
     ) -> WorkoutEngine {
         let plan = WorkoutPlan(
             targetReps: reps,
             burpeeType: .sixCount,
+            repsPerChime: repsPerChime,
             totalDuration: secondsPerRep * Double(reps)
         )
         return WorkoutEngine(plan: plan, countdownDuration: countdown, autoTicks: false)
@@ -19,8 +21,8 @@ struct WorkoutEngineTests {
 
     @Test func countdownLeadsIntoFirstRep() {
         let engine = makeEngine()
-        var repStarts = 0
-        engine.onRepStart = { repStarts += 1 }
+        var chimes = 0
+        engine.onChime = { chimes += 1 }
 
         let t0 = Date(timeIntervalSinceReferenceDate: 0)
         engine.start(now: t0)
@@ -33,8 +35,8 @@ struct WorkoutEngineTests {
 
         engine.tick(now: t0.addingTimeInterval(10))
         #expect(engine.phase == .running)
-        #expect(engine.currentRep == 1)
-        #expect(repStarts == 1)
+        #expect(engine.completedReps == 0)
+        #expect(chimes == 1)
         #expect(abs(engine.timeRemaining - 10) < 0.001)
     }
 
@@ -60,7 +62,6 @@ struct WorkoutEngineTests {
 
         engine.tick(now: t0.addingTimeInterval(107)) // 7s after resume: rep 1 done
         #expect(engine.completedReps == 1)
-        #expect(engine.currentRep == 2)
     }
 
     @Test func pauseDuringCountdownPreservesRemaining() {
@@ -75,14 +76,14 @@ struct WorkoutEngineTests {
         engine.resume(now: t0.addingTimeInterval(50))
         engine.tick(now: t0.addingTimeInterval(56)) // countdown ends 6s after resume
         #expect(engine.phase == .running)
-        #expect(engine.currentRep == 1)
+        #expect(engine.completedReps == 0)
     }
 
     @Test func completingAllRepsFinishesWorkout() {
         let engine = makeEngine(reps: 2, secondsPerRep: 10, countdown: 5)
-        var repStarts = 0
+        var chimes = 0
         var finished = 0
-        engine.onRepStart = { repStarts += 1 }
+        engine.onChime = { chimes += 1 }
         engine.onFinish = { finished += 1 }
 
         let t0 = Date(timeIntervalSinceReferenceDate: 0)
@@ -94,8 +95,35 @@ struct WorkoutEngineTests {
 
         #expect(engine.phase == .finished)
         #expect(engine.completedReps == 2)
-        #expect(repStarts == 2)
+        #expect(chimes == 2)
         #expect(finished == 1)
+    }
+
+    @Test func batchesChimeInGroupsAndShrinkTheFinalBatch() {
+        // 7 reps in batches of 3 at 10s/rep: intervals of 30s, 30s, then a
+        // final 10s single so the total still lands at 70s.
+        let engine = makeEngine(reps: 7, secondsPerRep: 10, countdown: 5, repsPerChime: 3)
+        var chimes = 0
+        engine.onChime = { chimes += 1 }
+
+        let t0 = Date(timeIntervalSinceReferenceDate: 0)
+        engine.start(now: t0)
+        engine.tick(now: t0.addingTimeInterval(5))  // batch 1 begins
+        #expect(engine.repsThisChime == 3)
+        #expect(abs(engine.timeRemaining - 30) < 0.001)
+
+        engine.tick(now: t0.addingTimeInterval(35)) // batch 2 begins
+        #expect(engine.completedReps == 3)
+
+        engine.tick(now: t0.addingTimeInterval(65)) // final single begins
+        #expect(engine.completedReps == 6)
+        #expect(engine.repsThisChime == 1)
+        #expect(abs(engine.timeRemaining - 10) < 0.001)
+
+        engine.tick(now: t0.addingTimeInterval(75)) // done
+        #expect(engine.phase == .finished)
+        #expect(engine.completedReps == 7)
+        #expect(chimes == 3)
     }
 
     @Test func earlyStopKeepsCompletedReps() {
@@ -119,7 +147,6 @@ struct WorkoutEngineTests {
         // No ticks for 21s (e.g. app suspended): reps 1 and 2 elapsed meanwhile.
         engine.tick(now: t0.addingTimeInterval(26))
         #expect(engine.completedReps == 2)
-        #expect(engine.currentRep == 3)
         #expect(abs(engine.timeRemaining - 9) < 0.001)
     }
 
@@ -143,10 +170,10 @@ struct WorkoutStoreTests {
         URL.temporaryDirectory.appending(path: "workout-store-tests-\(UUID().uuidString).json")
     }
 
-    private func makeWorkout(completedReps: Int = 47) -> Workout {
+    private func makeWorkout(completedReps: Int = 47, type: BurpeeType = .tenCount) -> Workout {
         Workout(
             date: Date(timeIntervalSince1970: 1_752_000_000), // whole seconds: survives ISO 8601 round-trip
-            burpeeType: .tenCount,
+            burpeeType: type,
             targetReps: 50,
             completedReps: completedReps,
             secondsPerRep: 24
@@ -177,6 +204,19 @@ struct WorkoutStoreTests {
         let reloaded = WorkoutStore(fileURL: url)
         #expect(reloaded.workouts.count == 1)
         #expect(reloaded.workouts.first?.completedReps == 10)
+    }
+
+    @Test func lastWorkoutOfTypeReturnsMostRecentOfThatType() {
+        let url = temporaryStoreURL()
+        defer { try? FileManager.default.removeItem(at: url) }
+
+        let store = WorkoutStore(fileURL: url)
+        store.add(makeWorkout(completedReps: 10, type: .sixCount))
+        store.add(makeWorkout(completedReps: 20, type: .tenCount))
+        store.add(makeWorkout(completedReps: 30, type: .sixCount))
+
+        #expect(store.lastWorkout(of: .sixCount)?.completedReps == 30)
+        #expect(store.lastWorkout(of: .tenCount)?.completedReps == 20)
     }
 
     @Test func newestWorkoutIsFirst() {

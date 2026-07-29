@@ -33,6 +33,11 @@ final class WorkoutStore {
         workouts.reduce(0) { $0 + $1.completedReps }
     }
 
+    /// Most recent workout of the given type; seeds the next workout's target.
+    func lastWorkout(of type: BurpeeType) -> Workout? {
+        workouts.first { $0.burpeeType == type }
+    }
+
     // MARK: - Persistence
 
     nonisolated static var defaultFileURL: URL {
