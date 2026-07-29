@@ -65,7 +65,7 @@ final class WorkoutEngine {
         phase == .countingDown || (phase == .paused && phaseBeforePause == .countingDown)
     }
 
-    init(plan: WorkoutPlan, countdownDuration: TimeInterval = 10, autoTicks: Bool = true) {
+    init(plan: WorkoutPlan, countdownDuration: TimeInterval = 5, autoTicks: Bool = true) {
         self.plan = plan
         self.countdownDuration = countdownDuration
         self.autoTicks = autoTicks
