@@ -3,7 +3,7 @@ import SwiftUI
 /// The live workout screen, read from the floor while standing: a giant
 /// countdown on top, the red clock bar under it, then the dot grid — one dot
 /// per rep, blue when done, red for the set the next chime asks for — and a
-/// fixed-size counter row. Only the dots resize as targets grow.
+/// large counter row. Only the dots resize as targets grow.
 struct TimerView: View {
     @Environment(WorkoutStore.self) private var workoutStore
     @Environment(\.dismiss) private var dismiss
@@ -179,23 +179,23 @@ struct TimerView: View {
         }
     }
 
-    /// Done and to-go counts. Fixed size; only the grid above adapts.
+    /// Done and to-go counts, large enough to read from standing height.
     private var counterRow: some View {
         HStack(alignment: .firstTextBaseline) {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
                 Text("\(engine.completedReps)")
-                    .font(Theme.display(44))
+                    .font(Theme.display(76))
                     .foregroundStyle(Theme.blue)
                     .contentTransition(.numericText())
                     .animation(.easeOut(duration: 0.3), value: engine.completedReps)
                 Text("/\(plan.targetReps)")
-                    .font(Theme.display(20))
+                    .font(Theme.display(28))
                     .foregroundStyle(Theme.grey)
             }
             Spacer()
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text("\(plan.targetReps - engine.completedReps)")
-                    .font(Theme.display(26))
+                    .font(Theme.display(32))
                     .foregroundStyle(Theme.ink)
                     .contentTransition(.numericText(countsDown: true))
                     .animation(.easeOut(duration: 0.3), value: engine.completedReps)
