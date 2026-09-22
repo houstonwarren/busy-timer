@@ -34,8 +34,9 @@ run:
 run-iphone:
     #!/usr/bin/env bash
     set -euo pipefail
-    udid=$(xcrun devicectl list devices | grep -i iphone | grep -ioE '[0-9A-F]{8}(-[0-9A-F]{4}){3}-[0-9A-F]{12}' | head -1)
-    if [ -z "$udid" ]; then echo "no iPhone found — plug it in, unlock it, and trust this Mac"; exit 1; fi
+    # Xcode 27 lists simulators too; ask for physical iPhones and use their reported ID
+    udid=$(xcrun devicectl list devices --filter "Reality = 'physical' AND Model BEGINSWITH 'iPhone'" --hide-default-columns --columns Identifier --hide-headers | awk 'NR == 1 {print $1}')
+    if [ -z "$udid" ]; then echo "no iPhone found: plug it in, unlock it, and trust this Mac"; exit 1; fi
     xcodebuild -project {{project}} -scheme {{scheme}} -destination generic/platform=iOS -derivedDataPath "{{build}}" -allowProvisioningUpdates build
     xcrun devicectl device install app --device "$udid" "{{build}}/Build/Products/Debug-iphoneos/busy-timer.app"
     xcrun devicectl device process launch --device "$udid" {{bundle}}
