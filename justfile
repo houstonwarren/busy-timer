@@ -1,3 +1,7 @@
+
+set default-list
+set positional-arguments
+
 # xcodebuild lives in full Xcode, not the command line tools shim
 export DEVELOPER_DIR := "/Applications/Xcode.app/Contents/Developer"
 
@@ -7,6 +11,10 @@ bundle := "Houston-Warren.busy-timer"
 
 # build outside Dropbox: it stamps com.apple.FinderInfo on the .app, which codesign rejects
 build := env_var("HOME") / "Library/Developer/Xcode/DerivedData/busy-timer-just"
+
+# Create a worktree from the current branch using Worktrunk.
+wt-init branch:
+    wt switch --create --base=@ --no-cd {{ quote(branch) }}
 
 # unit tests on the newest iPhone 17 Pro Max simulator
 test:

@@ -1,3 +1,5 @@
+// xcode: set sdk=iOS
+
 import Foundation
 import Testing
 @testable import busy_timer
