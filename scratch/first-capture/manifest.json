@@ -1,0 +1,79 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "F10F163D-09BF-4082-B87B-DD76714460DF",
+        "deviceName" : "iPhone Duo",
+        "exportedFileName" : "55D88069-45A7-4CC2-A102-7779B555B87F.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "setup_0_9DBA87F2-531A-412A-9A1B-62FA37A865F5.png",
+        "timestamp" : 1793741969.684
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "F10F163D-09BF-4082-B87B-DD76714460DF",
+        "deviceName" : "iPhone Duo",
+        "exportedFileName" : "0F24AFFD-1292-4AE1-9FAF-C10D824478C1",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Synthesized Event 2026-11-03 at 04.39.29 PM",
+        "timestamp" : 1793741969.38
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "F10F163D-09BF-4082-B87B-DD76714460DF",
+        "deviceName" : "iPhone Duo",
+        "exportedFileName" : "30589487-1E41-49EB-8762-98B1CC1F4887",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Synthesized Event 2026-11-03 at 04.39.28 PM",
+        "timestamp" : 1793741968.689
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "F10F163D-09BF-4082-B87B-DD76714460DF",
+        "deviceName" : "iPhone Duo",
+        "exportedFileName" : "83A4946A-712A-4860-88B6-1938EA4BBF8D",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Synthesized Event 2026-11-03 at 04.39.27 PM",
+        "timestamp" : 1793741967.327
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "F10F163D-09BF-4082-B87B-DD76714460DF",
+        "deviceName" : "iPhone Duo",
+        "exportedFileName" : "BB27B01A-3453-43B8-89EA-8CF2B8520DDD.mp4",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "Screen Recording 2026-11-03 at 04.39.19 PM.mp4",
+        "timestamp" : 1793741959.898
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "F10F163D-09BF-4082-B87B-DD76714460DF",
+        "deviceName" : "iPhone Duo",
+        "exportedFileName" : "CBD9E454-3E02-4A07-BE90-F1D51DC744B7.txt",
+        "isAssociatedWithFailure" : true,
+        "suggestedHumanReadableName" : "Complete Issue Description.txt"
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "F10F163D-09BF-4082-B87B-DD76714460DF",
+        "deviceName" : "iPhone Duo",
+        "exportedFileName" : "FC38331C-8F35-4D40-8107-A574F73DBD8B.txt",
+        "isAssociatedWithFailure" : true,
+        "suggestedHumanReadableName" : "App UI hierarchy for Houston-Warren_0_DD29276B-68F0-4241-A2D6-8FF94FE26F44.busy-timer",
+        "timestamp" : 1793741971.756
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "F10F163D-09BF-4082-B87B-DD76714460DF",
+        "deviceName" : "iPhone Duo",
+        "exportedFileName" : "E6FF3EB3-A124-4FD6-933B-BC3A2B9FE8B0",
+        "isAssociatedWithFailure" : true,
+        "suggestedHumanReadableName" : "UI Snapshot 2026-11-03 at 04.39.31 PM",
+        "timestamp" : 1793741971.756
+      }
+    ],
+    "testIdentifier" : "BusyTimerUITests/testDuoScreenshots()",
+    "testIdentifierURL" : "test://com.apple.xcode/busy-timer/busy-timerUITests/BusyTimerUITests/testDuoScreenshots"
+  }
+]

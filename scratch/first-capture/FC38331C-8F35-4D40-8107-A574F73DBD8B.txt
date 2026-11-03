@@ -1,0 +1,48 @@
+Application, 0x1027cf0c0, pid: 22408, label: 'Busy Timer' <App element pid: 22408>
+  Window (Main), 0x1027cf200, {{0.0, 0.0}, {466.0, 678.0}} <AX element pid: 22408, elementOrHash.elementID: 4398366720.4>
+    Other, 0x1027cea80, {{0.0, 0.0}, {466.0, 678.0}} <AX element pid: 22408, elementOrHash.elementID: 4443000576.5>
+      Other, 0x1027cf5c0, {{0.0, 0.0}, {466.0, 678.0}} <AX element pid: 22408, elementOrHash.elementID: 4443001216.6>
+        Other, 0x1027cef80, {{0.0, 0.0}, {466.0, 678.0}} <AX element pid: 22408, elementOrHash.elementID: 4398336512.7>
+          Other, 0x1027cf480, {{0.0, 0.0}, {466.0, 678.0}} <AX element pid: 22408, elementOrHash.elementID: 4444811296.8>
+            Other, 0x1027cf840, {{0.0, 0.0}, {466.0, 678.0}} <AX element pid: 22408, elementOrHash.elementID: 4441938432.9>
+              Toolbar, 0x1027cf700, {{0.0, 0.0}, {466.0, 678.0}}, identifier: 'Toolbar', label: 'Toolbar' <AX element pid: 22408, elementOrHash.elementID: 4443008256.10>
+                Other, 0x1027cfac0, {{0.0, 0.0}, {466.0, 678.0}} <AX element pid: 22408, elementOrHash.elementID: 4443010176.12>
+              Other, 0x1027cfc00, {{0.0, 0.0}, {466.0, 678.0}} <AX element pid: 22408, elementOrHash.elementID: 4399009728.11>
+                Other, 0x1027cc140, {{0.0, 0.0}, {466.0, 678.0}} <AX element pid: 22408, elementOrHash.elementID: 4399005184.13>
+                  Other, 0x1027cc000, {{0.0, 0.0}, {466.0, 678.0}} <AX element pid: 22408, elementOrHash.elementID: 4398367744.14>
+                    Other, 0x10e418000, {{0.0, 0.0}, {466.0, 678.0}} <AX element pid: 22408, elementOrHash.elementID: 4578445344.15>
+                      ScrollView, 0x10e418140, {{0.0, 0.0}, {466.0, 678.0}} <AX element pid: 22408, elementOrHash.elementID: 4398304256.16>
+                        Other, 0x10e418280, {{0.0, 0.0}, {382.0, 505.7}} <AX element pid: 22408, elementOrHash.elementID: 4443010816.20>
+                          StaticText, 0x10e4183c0, {{24.0, 14.4}, {97.7, 27.3}}, label: 'busy timer' <AX element pid: 22408, elementOrHash.elementID: 4444813536.22>
+                          StaticText, 0x10e418500, {{121.7, 14.4}, {6.7, 27.3}}, label: '.' <AX element pid: 22408, elementOrHash.elementID: 4444813856.23>
+                          Button, 0x10e418640, {{322.0, 10.0}, {36.0, 36.0}}, identifier: 'clock', label: 'Clock' <AX element pid: 22408, elementOrHash.elementID: 4444813056.24>
+                          StaticText, 0x10e418780, {{37.5, 72.6}, {21.0, 22.3}}, label: '20' <AX element pid: 22408, elementOrHash.elementID: 4444814016.25>
+                          StaticText, 0x10e4188c0, {{86.0, 69.4}, {87.0, 21.0}}, label: 'just burpees' <AX element pid: 22408, elementOrHash.elementID: 4444814336.26>
+                          StaticText, 0x10e418a00, {{173.0, 69.4}, {5.0, 21.0}}, label: '.' <AX element pid: 22408, elementOrHash.elementID: 4444814496.27>
+                          StaticText, 0x10e418b40, {{38.5, 94.9}, {19.0, 8.7}}, label: 'MIN' <AX element pid: 22408, elementOrHash.elementID: 4444814176.28>
+                          StaticText, 0x10e418c80, {{86.0, 92.4}, {149.7, 14.3}}, label: 'four times a week, forever.' <AX element pid: 22408, elementOrHash.elementID: 4444814656.29>
+                          StaticText, 0x10e418dc0, {{24.0, 145.6}, {100.7, 13.3}}, label: 'TARGET REPS' <AX element pid: 22408, elementOrHash.elementID: 4444814816.30>
+                          Button, 0x10e418f00, {{24.0, 192.3}, {52.0, 52.0}}, label: '−' <AX element pid: 22408, elementOrHash.elementID: 4444814976.31>
+                          TextField, 0x10e419040, {{92.0, 163.0}, {198.0, 111.0}}, placeholderValue: '0', value: 100 <AX element pid: 22408, elementOrHash.elementID: 4398339072.32>
+                          Button, 0x10e419180, {{306.0, 192.3}, {52.0, 52.0}}, label: '+' <AX element pid: 22408, elementOrHash.elementID: 4444809056.33>
+                          StaticText, 0x10e4192c0, {{24.0, 307.4}, {100.7, 13.3}}, label: 'BURPEE TYPE' <AX element pid: 22408, elementOrHash.elementID: 4578443264.34>
+                          Button, 0x10e419400, {{24.0, 332.7}, {96.7, 42.0}}, label: '6-count' <AX element pid: 22408, elementOrHash.elementID: 4578443424.35>
+                          Button, 0x10e419540, {{122.3, 332.7}, {103.7, 42.0}}, label: '10-count' <AX element pid: 22408, elementOrHash.elementID: 4578443584.36>
+                          StaticText, 0x10e419680, {{24.0, 408.2}, {104.7, 13.3}}, label: 'REPS PER SET' <AX element pid: 22408, elementOrHash.elementID: 4578443744.37>
+                          Button, 0x10e4197c0, {{24.0, 433.7}, {52.0, 42.0}}, label: '1' <AX element pid: 22408, elementOrHash.elementID: 4578443904.38>
+                          Button, 0x10e419900, {{77.7, 433.7}, {52.0, 42.0}}, label: '2' <AX element pid: 22408, elementOrHash.elementID: 4578444064.39>
+                          Button, 0x10e419a40, {{131.0, 433.7}, {52.0, 42.0}}, label: '3' <AX element pid: 22408, elementOrHash.elementID: 4578444224.40>
+                          Button, 0x10e419b80, {{184.7, 433.7}, {52.0, 42.0}}, label: '4' <AX element pid: 22408, elementOrHash.elementID: 4578444384.41>
+                          Button, 0x10e419cc0, {{238.0, 433.7}, {52.0, 42.0}}, label: '5' <AX element pid: 22408, elementOrHash.elementID: 4578444544.42>
+                        Other, 0x10e419e00, {{433.0, 59.0}, {30.0, 454.8}}, label: 'Vertical scroll bar, 1 page', value: 0% <AX element pid: 22408, elementOrHash.elementID: 4399421440.21>
+                          Other, 0x10e419f40, {{460.0, 70.2}, {3.0, 440.7}} <AX element pid: 22408, elementOrHash.elementID: 4399016448.43>
+                        Other, 0x10e41a080, {{433.0, 59.0}, {30.0, 454.8}}, label: 'Vertical scroll bar, 1 page', value: 0% <AX element pid: 22408, elementOrHash.elementID: 4399421440.21>
+                          Other, 0x10e41a1c0, {{460.0, 70.2}, {3.0, 440.7}} <AX element pid: 22408, elementOrHash.elementID: 4399016448.43>
+                      StaticText, 0x10e41a300, {{222.3, 536.3}, {13.7, 28.7}}, label: '1' <AX element pid: 22408, elementOrHash.elementID: 4651795072.87>
+                      StaticText, 0x10e41a440, {{303.0, 536.3}, {55.0, 28.7}}, label: '12.0s' <AX element pid: 22408, elementOrHash.elementID: 4651796512.88>
+                      StaticText, 0x10e41a580, {{24.0, 549.0}, {84.0, 13.3}}, label: 'YOUR PACE' <AX element pid: 22408, elementOrHash.elementID: 4578444864.17>
+                      StaticText, 0x10e41a6c0, {{241.0, 547.0}, {57.0, 15.7}}, label: 'rep every' <AX element pid: 22408, elementOrHash.elementID: 4651796672.89>
+                      Button, 0x10e41a800, {{24.0, 578.0}, {334.0, 56.0}}, label: 'START WORKOUT' <AX element pid: 22408, elementOrHash.elementID: 4578445184.19>
+  Window, 0x10e41a940, {{0.0, 0.0}, {466.0, 678.0}} <AX element pid: 22408, elementOrHash.elementID: 4398192640.44>
+    Other, 0x10e41aa80, {{0.0, 0.0}, {466.0, 678.0}} <AX element pid: 22408, elementOrHash.elementID: 4399417344.46>
+      Other, 0x10e41abc0, {{0.0, 0.0}, {466.0, 678.0}} <AX element pid: 22408, elementOrHash.elementID: 4442849792.48>

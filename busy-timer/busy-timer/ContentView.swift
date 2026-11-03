@@ -1,6 +1,14 @@
 import SwiftUI
 
 struct ContentView: View {
+    var body: some View {
+        NavigationStack {
+            SetupView()
+        }
+    }
+}
+
+struct SetupView: View {
     @Environment(WorkoutStore.self) private var workoutStore
 
     @State private var targetReps: Int?
@@ -24,51 +32,67 @@ struct ContentView: View {
         )
     }
 
+    /// Keep the form together; only section gaps change when less height is available.
+    private func form(sectionSpacing: CGFloat) -> some View {
+        VStack(alignment: .leading, spacing: sectionSpacing) {
+            header
+            brief
+            targetSection
+            typeSection
+            batchSection
+        }
+        .frame(maxWidth: Theme.contentWidth)
+        .padding(.horizontal, 24)
+        .padding(.bottom, 16)
+        .frame(maxWidth: .infinity)
+    }
+
     var body: some View {
-        NavigationStack {
+        ViewThatFits(in: .vertical) {
+            form(sectionSpacing: 24)
+                .fixedSize(horizontal: false, vertical: true)
+            form(sectionSpacing: 12)
+                .fixedSize(horizontal: false, vertical: true)
             ScrollView {
-                VStack(alignment: .leading, spacing: 0) {
-                    header
-                    brief
-                    targetSection
-                    typeSection
-                    batchSection
-                }
-                .padding(.horizontal, 24)
-                .padding(.bottom, 12)
+                form(sectionSpacing: 12)
             }
-            .scrollDismissesKeyboard(.interactively)
-            // no panning when everything already fits on screen
-            .scrollBounceBehavior(.basedOnSize)
-            // simultaneous so buttons keep every tap; any touch still drops the keyboard
-            .simultaneousGesture(TapGesture().onEnded {
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .scrollDismissesKeyboard(.interactively)
+        // no panning when everything already fits on screen
+        .scrollBounceBehavior(.basedOnSize)
+        // simultaneous so buttons keep every tap; any touch still drops the keyboard
+        .simultaneousGesture(
+            TapGesture().onEnded {
                 if repsFocused { repsFocused = false }
-            })
-            .paperBackground()
-            .safeAreaInset(edge: .bottom) {
-                VStack(spacing: 0) {
-                    paceRow
-                    Button("start workout") {
-                        repsFocused = false
-                        activePlan = draftPlan
-                    }
-                    .buttonStyle(InkBarButtonStyle(showDot: true))
-                    .disabled(draftPlan == nil)
+            }
+        )
+        .paperBackground()
+        .safeAreaInset(edge: .bottom) {
+            VStack(spacing: 0) {
+                paceRow
+                Button("start workout") {
+                    repsFocused = false
+                    activePlan = draftPlan
                 }
-                .padding(.horizontal, 24)
-                .padding(.bottom, 10)
-                .background(Theme.paper.opacity(0.94))
+                .buttonStyle(InkBarButtonStyle(showDot: true))
+                .disabled(draftPlan == nil)
             }
-            .toolbar {
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-                    Button("Done") { repsFocused = false }
-                }
+            .frame(maxWidth: Theme.contentWidth)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 10)
+            .frame(maxWidth: .infinity)
+            .background(Theme.paper.opacity(0.94))
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") { repsFocused = false }
             }
-            .toolbar(.hidden, for: .navigationBar)
-            .navigationDestination(item: $activePlan) { plan in
-                TimerView(plan: plan)
-            }
+        }
+        .toolbar(.hidden, for: .navigationBar)
+        .navigationDestination(item: $activePlan) { plan in
+            TimerView(plan: plan)
         }
         .tint(Theme.ink)
         .onAppear { prefillFromHistory() }
@@ -141,8 +165,6 @@ struct ContentView: View {
                     .foregroundStyle(Theme.grey)
             }
         }
-        .padding(.top, 24)
-        .padding(.bottom, 24)
     }
 
     private var targetSection: some View {
@@ -165,7 +187,7 @@ struct ContentView: View {
                     .keyboardType(.numberPad)
                     .focused($repsFocused)
                     .simultaneousGesture(TapGesture().onEnded { targetReps = nil })
-                    .font(Theme.display(84))
+                    .font(Theme.display(72))
                     .foregroundStyle(Theme.ink)
                     .multilineTextAlignment(.center)
                     .tint(Theme.red)
@@ -175,7 +197,6 @@ struct ContentView: View {
             }
             .padding(.top, 4)
         }
-        .padding(.bottom, 24)
     }
 
     private var typeSection: some View {
@@ -187,7 +208,6 @@ struct ContentView: View {
             SegmentedBox(items: BurpeeType.allCases, selection: $burpeeType) { $0.rawValue }
                 .padding(.top, 12)
         }
-        .padding(.bottom, 24)
     }
 
     private var batchSection: some View {
@@ -199,7 +219,6 @@ struct ContentView: View {
             SegmentedBox(items: batchChoices, selection: $repsPerChime) { "\($0)" }
                 .padding(.top, 12)
         }
-        .padding(.bottom, 24)
     }
 
     /// The workout's cadence, spelled out above the start button. Red is the

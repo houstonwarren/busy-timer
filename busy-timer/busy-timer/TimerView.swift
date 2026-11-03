@@ -17,9 +17,9 @@ struct TimerView: View {
     /// still finishes, but there's nothing to record so no summary shows.
     @State private var cancelled = false
 
-    init(plan: WorkoutPlan) {
+    init(plan: WorkoutPlan, engine: WorkoutEngine? = nil) {
         self.plan = plan
-        _engine = State(initialValue: WorkoutEngine(plan: plan))
+        _engine = State(initialValue: engine ?? WorkoutEngine(plan: plan))
     }
 
     /// Seconds and tenths shown while running, floored so "26.4" reads
@@ -65,25 +65,27 @@ struct TimerView: View {
             statusHeader
 
             countdownBlock
-                .padding(.top, 26)
+                .padding(.top, 18)
 
             RepDotGrid(
                 total: plan.targetReps,
                 done: engine.completedReps,
                 currentSet: engine.phase == .finished ? 0 : engine.repsThisChime
             )
-            .padding(.top, 26)
+            .frame(maxHeight: .infinity)
+            .padding(.top, 18)
 
             counterRow
                 .padding(.top, 16)
 
-            Spacer(minLength: 12)
-
             controls
+                .padding(.top, 18)
         }
+        .frame(maxWidth: Theme.contentWidth)
         .padding(.horizontal, 24)
         .padding(.top, 8)
         .padding(.bottom, 12)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .paperBackground()
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
@@ -137,12 +139,14 @@ struct TimerView: View {
         }
     }
 
-    /// Countdown numerals plus the red clock bar. Fixed size at every target.
+    /// Keep the countdown legible at a fixed size; the grid takes the remaining height.
     private var countdownBlock: some View {
         VStack(alignment: .leading, spacing: 0) {
             if engine.phase == .ready {
                 Text(Duration.seconds(plan.totalDuration), format: .time(pattern: .minuteSecond))
                     .font(Theme.display(104))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                     .foregroundStyle(Theme.ink)
             } else {
                 // tenths ride the baseline small and grey: useful, not shouting
@@ -292,7 +296,6 @@ struct RepDotGrid: View {
                 }
             }
         }
-        .frame(height: 266)
     }
 }
 

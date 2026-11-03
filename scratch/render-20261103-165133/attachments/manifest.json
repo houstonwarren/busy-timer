@@ -1,0 +1,62 @@
+[
+  {
+    "attachments" : [
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "F10F163D-09BF-4082-B87B-DD76714460DF",
+        "deviceName" : "iPhone Duo",
+        "exportedFileName" : "F247C70A-8E52-4962-94D4-7A5034A0A9EB.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "opened-running_0_01FCA5C5-D631-4894-8322-F5A8109347DA.png",
+        "timestamp" : 1793742712.53
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "F10F163D-09BF-4082-B87B-DD76714460DF",
+        "deviceName" : "iPhone Duo",
+        "exportedFileName" : "C97CC4C9-64D3-4617-BB3D-7D84BAF55A1A.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "opened-ready_0_2C55E511-5E58-462A-A78C-8EC7BA045D9E.png",
+        "timestamp" : 1793742712.059
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "F10F163D-09BF-4082-B87B-DD76714460DF",
+        "deviceName" : "iPhone Duo",
+        "exportedFileName" : "5BF96193-7B2D-456E-9BC4-EEFEDC2F9200.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "opened-setup_0_E0432C96-2247-4217-BC2C-442819CEBF41.png",
+        "timestamp" : 1793742711.575
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "F10F163D-09BF-4082-B87B-DD76714460DF",
+        "deviceName" : "iPhone Duo",
+        "exportedFileName" : "F672CB24-13D9-4BE2-A3D3-09FE3FA0168C.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "front-running_0_9B489D63-A85D-4D9A-9EDA-80FF83692011.png",
+        "timestamp" : 1793742711.109
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "F10F163D-09BF-4082-B87B-DD76714460DF",
+        "deviceName" : "iPhone Duo",
+        "exportedFileName" : "494C8A05-21D2-4078-B200-0A285334AD85.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "front-ready_0_776DFCE5-C6A8-463B-9F73-FB6FD62D1895.png",
+        "timestamp" : 1793742710.675
+      },
+      {
+        "configurationName" : "Test Scheme Action",
+        "deviceId" : "F10F163D-09BF-4082-B87B-DD76714460DF",
+        "deviceName" : "iPhone Duo",
+        "exportedFileName" : "F976B8F9-8158-4A45-8401-6C7BFC91BF10.png",
+        "isAssociatedWithFailure" : false,
+        "suggestedHumanReadableName" : "front-setup_0_928E44C0-CAAA-4714-9C33-B440582FE86B.png",
+        "timestamp" : 1793742710.074
+      }
+    ],
+    "testIdentifier" : "LayoutRenderTests/testDuoLayouts()",
+    "testIdentifierURL" : "test://com.apple.xcode/busy-timer/busy-timerTests/LayoutRenderTests/testDuoLayouts"
+  }
+]
