@@ -2,6 +2,7 @@
 
 import Foundation
 import Testing
+
 @testable import busy_timer
 
 @MainActor
@@ -46,9 +47,9 @@ struct WorkoutEngineTests {
         let engine = makeEngine()
         let t0 = Date(timeIntervalSinceReferenceDate: 0)
         engine.start(now: t0)
-        engine.tick(now: t0.addingTimeInterval(10)) // countdown done, rep 1 begins
+        engine.tick(now: t0.addingTimeInterval(10))  // countdown done, rep 1 begins
 
-        engine.tick(now: t0.addingTimeInterval(13)) // 3s into rep 1
+        engine.tick(now: t0.addingTimeInterval(13))  // 3s into rep 1
         engine.pause(now: t0.addingTimeInterval(13))
         #expect(engine.phase == .paused)
         #expect(abs(engine.timeRemaining - 7) < 0.001)
@@ -62,7 +63,7 @@ struct WorkoutEngineTests {
         #expect(abs(engine.timeRemaining - 4) < 0.001)
         #expect(engine.completedReps == 0)
 
-        engine.tick(now: t0.addingTimeInterval(107)) // 7s after resume: rep 1 done
+        engine.tick(now: t0.addingTimeInterval(107))  // 7s after resume: rep 1 done
         #expect(engine.completedReps == 1)
     }
 
@@ -76,7 +77,7 @@ struct WorkoutEngineTests {
         #expect(abs(engine.timeRemaining - 6) < 0.001)
 
         engine.resume(now: t0.addingTimeInterval(50))
-        engine.tick(now: t0.addingTimeInterval(56)) // countdown ends 6s after resume
+        engine.tick(now: t0.addingTimeInterval(56))  // countdown ends 6s after resume
         #expect(engine.phase == .running)
         #expect(engine.completedReps == 0)
     }
@@ -91,9 +92,9 @@ struct WorkoutEngineTests {
         let t0 = Date(timeIntervalSinceReferenceDate: 0)
         engine.start(now: t0)
         engine.tick(now: t0.addingTimeInterval(5))  // rep 1 begins
-        engine.tick(now: t0.addingTimeInterval(15)) // rep 2 begins
+        engine.tick(now: t0.addingTimeInterval(15))  // rep 2 begins
         #expect(engine.completedReps == 1)
-        engine.tick(now: t0.addingTimeInterval(25)) // rep 2 done
+        engine.tick(now: t0.addingTimeInterval(25))  // rep 2 done
 
         #expect(engine.phase == .finished)
         #expect(engine.completedReps == 2)
@@ -114,15 +115,15 @@ struct WorkoutEngineTests {
         #expect(engine.repsThisChime == 3)
         #expect(abs(engine.timeRemaining - 30) < 0.001)
 
-        engine.tick(now: t0.addingTimeInterval(35)) // batch 2 begins
+        engine.tick(now: t0.addingTimeInterval(35))  // batch 2 begins
         #expect(engine.completedReps == 3)
 
-        engine.tick(now: t0.addingTimeInterval(65)) // final single begins
+        engine.tick(now: t0.addingTimeInterval(65))  // final single begins
         #expect(engine.completedReps == 6)
         #expect(engine.repsThisChime == 1)
         #expect(abs(engine.timeRemaining - 10) < 0.001)
 
-        engine.tick(now: t0.addingTimeInterval(75)) // done
+        engine.tick(now: t0.addingTimeInterval(75))  // done
         #expect(engine.phase == .finished)
         #expect(engine.completedReps == 7)
         #expect(chimes == 3)
@@ -133,7 +134,7 @@ struct WorkoutEngineTests {
         let t0 = Date(timeIntervalSinceReferenceDate: 0)
         engine.start(now: t0)
         engine.tick(now: t0.addingTimeInterval(5))  // rep 1 begins
-        engine.tick(now: t0.addingTimeInterval(25)) // reps 1 & 2 done, in rep 3
+        engine.tick(now: t0.addingTimeInterval(25))  // reps 1 & 2 done, in rep 3
 
         engine.stop()
         #expect(engine.phase == .finished)
@@ -144,7 +145,7 @@ struct WorkoutEngineTests {
         let engine = makeEngine(reps: 5, secondsPerRep: 10, countdown: 5)
         let t0 = Date(timeIntervalSinceReferenceDate: 0)
         engine.start(now: t0)
-        engine.tick(now: t0.addingTimeInterval(5)) // rep 1 begins
+        engine.tick(now: t0.addingTimeInterval(5))  // rep 1 begins
 
         // No ticks for 21s (e.g. app suspended): reps 1 and 2 elapsed meanwhile.
         engine.tick(now: t0.addingTimeInterval(26))
@@ -174,7 +175,7 @@ struct WorkoutStoreTests {
 
     private func makeWorkout(completedReps: Int = 47, type: BurpeeType = .tenCount) -> Workout {
         Workout(
-            date: Date(timeIntervalSince1970: 1_752_000_000), // whole seconds: survives ISO 8601 round-trip
+            date: Date(timeIntervalSince1970: 1_752_000_000),  // whole seconds: survives ISO 8601 round-trip
             burpeeType: type,
             targetReps: 50,
             completedReps: completedReps,
@@ -229,7 +230,48 @@ struct WorkoutStoreTests {
         store.add(makeWorkout(completedReps: 1))
         store.add(makeWorkout(completedReps: 2))
         #expect(store.workouts.map(\.completedReps) == [2, 1])
-        #expect(store.totalCompletedReps == 3)
+        #expect(store.totalCompletedReps(of: .tenCount) == 3)
+    }
+
+    /// Same-day sessions add within their type; deletion updates totals and chart data.
+    @Test func historyKeepsBurpeeTypesSeparate() throws {
+        let url = temporaryStoreURL()
+        defer { try? FileManager.default.removeItem(at: url) }
+        let store = WorkoutStore(fileURL: url)
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: .now)
+        let yesterday = try #require(calendar.date(byAdding: .day, value: -1, to: today))
+
+        for (date, type, reps) in [
+            (today, BurpeeType.sixCount, 40),
+            (yesterday, .tenCount, 20),
+            (today.addingTimeInterval(3600), .sixCount, 30),
+            (today, .tenCount, 15),
+        ] {
+            store.add(Workout(date: date, burpeeType: type, targetReps: 100, completedReps: reps, secondsPerRep: 12))
+        }
+
+        #expect(store.totalCompletedReps(of: .sixCount) == 70)
+        #expect(store.totalCompletedReps(of: .tenCount) == 35)
+        #expect(store.dailyHistory.map(\.date) == [yesterday, today])
+        #expect(store.dailyHistory.first?.completedReps(of: .sixCount) == 0)
+        #expect(store.dailyHistory.first?.completedReps(of: .tenCount) == 20)
+        #expect(store.dailyHistory.last?.completedReps(of: .sixCount) == 70)
+        #expect(store.dailyHistory.last?.completedReps(of: .tenCount) == 15)
+
+        store.delete(atOffsets: IndexSet(integer: 0))
+        let reloaded = WorkoutStore(fileURL: url)
+        #expect(reloaded.totalCompletedReps(of: .tenCount) == 20)
+        #expect(reloaded.dailyHistory.last?.completedReps(of: .tenCount) == 0)
+        #expect(reloaded.dailyHistory.last?.completedReps(of: .sixCount) == 70)
+    }
+
+    /// Empty history has no chart points and zero reps for both workout types.
+    @Test func emptyHistoryHasNoCounts() {
+        let store = WorkoutStore(fileURL: temporaryStoreURL())
+        #expect(store.dailyHistory.isEmpty)
+        #expect(store.totalCompletedReps(of: .sixCount) == 0)
+        #expect(store.totalCompletedReps(of: .tenCount) == 0)
     }
 
     @Test func savesMirrorIntoBackup() {

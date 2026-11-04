@@ -1,4 +1,3 @@
-
 set default-list
 set positional-arguments
 
@@ -11,24 +10,83 @@ bundle := "Houston-Warren.busy-timer"
 
 # build outside Dropbox: it stamps com.apple.FinderInfo on the .app, which codesign rejects
 build := env_var("HOME") / "Library/Developer/Xcode/DerivedData/busy-timer-just"
+simulator := `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun simctl list devices available | grep 'iPhone Duo (' | head -1 | grep -oE '[0-9A-F-]{36}'`
+
+# Format changed Swift files, or the supplied paths.
+lint lang="all" *paths:
+    @shift; {{ just_executable() }} -f {{ quote(justfile()) }} lint-{{ trim_start_match(lang, "lang=") }} "$@"
+
+lint-all: lint-swift
+
+lint-swift *paths:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ "$#" -gt 0 ]; then
+        swift format --in-place --recursive "$@"
+    else
+        git ls-files --modified --others --exclude-standard '*.swift' | while IFS= read -r path; do
+            swift format --in-place "$path"
+        done
+    fi
+
+# Check changed Swift files and type-check the iOS app through Xcode.
+check lang="all" *paths:
+    @shift; {{ just_executable() }} -f {{ quote(justfile()) }} check-{{ trim_start_match(lang, "lang=") }} "$@"
+
+check-all: check-swift
+
+check-swift *paths:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ "$#" -gt 0 ]; then
+        swift format lint --strict --recursive "$@"
+    else
+        git ls-files --modified --others --exclude-standard '*.swift' | while IFS= read -r path; do
+            swift format lint --strict "$path"
+        done
+    fi
+    {{ just_executable() }} build
+
+# Build for the installed Duo simulator.
+build:
+    xcodebuild -project {{project}} -scheme {{scheme}} -destination 'platform=iOS Simulator,id={{simulator}}' -derivedDataPath "{{build}}" build
 
 # Create a worktree from the current branch using Worktrunk.
 wt-init branch:
     wt switch --create --base=@ --no-cd {{ quote(branch) }}
 
-# unit tests on the newest iPhone 17 Pro Max simulator
+# Unit tests on the installed Duo simulator.
 test:
     #!/usr/bin/env bash
     set -euo pipefail
-    # available list runs oldest → newest runtime, so tail -1 is the latest
-    sim=$(xcrun simctl list devices available | grep "iPhone 17 Pro Max (" | tail -1 | grep -oE '[0-9A-F-]{36}')
-    xcodebuild test -project {{project}} -scheme {{scheme}} -destination "platform=iOS Simulator,id=$sim" -derivedDataPath "{{build}}" -only-testing:busy-timerTests
+    xcodebuild test -project {{project}} -scheme {{scheme}} -destination 'platform=iOS Simulator,id={{simulator}}' -derivedDataPath "{{build}}" -only-testing:busy-timerTests
 
-# build, install, and launch in the newest iPhone 17 Pro Max simulator
+# Render the actual SwiftUI screens at normal iPhone and both Duo portrait sizes.
+screenshots:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    output="scratch/render-$(date +%Y%m%d-%H%M%S)"
+    mkdir -p "$output"
+    xcodebuild test -project {{project}} -scheme {{scheme}} -destination 'platform=iOS Simulator,id={{simulator}}' -derivedDataPath "{{build}}" -only-testing:busy-timerTests/LayoutRenderTests -parallel-testing-enabled NO -resultBundlePath "$output/result.xcresult"
+    xcrun xcresulttool export attachments --path "$output/result.xcresult" --output-path "$output/attachments"
+    uv run python - "$output/attachments" <<'PY'
+    import json
+    import shutil
+    import sys
+    from pathlib import Path
+    source = Path(sys.argv[1])
+    for test in json.loads((source / "manifest.json").read_text()):
+        for attachment in test["attachments"]:
+            name = attachment["suggestedHumanReadableName"].split("_")[0]
+            if name.startswith(("iphone-", "front-", "opened-")):
+                shutil.copyfile(source / attachment["exportedFileName"], Path("scratch") / f"{name}.png")
+    PY
+
+# Build, install, and launch in the Duo simulator.
 run:
     #!/usr/bin/env bash
     set -euo pipefail
-    sim=$(xcrun simctl list devices available | grep "iPhone 17 Pro Max (" | tail -1 | grep -oE '[0-9A-F-]{36}')
+    sim='{{simulator}}'
     # build into a fixed path so the app path is predictable
     xcodebuild -project {{project}} -scheme {{scheme}} -destination "platform=iOS Simulator,id=$sim" -derivedDataPath "{{build}}" build
     # boot (waits until ready), show the window, install, launch

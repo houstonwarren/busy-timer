@@ -1,6 +1,23 @@
 import Foundation
 import Observation
 
+// MARK: - Daily history
+
+/// Completed reps on one local calendar day, kept separate by burpee type.
+struct WorkoutDay: Identifiable {
+    let date: Date
+    let repsByType: [BurpeeType: Int]
+
+    var id: Date { date }
+
+    /// Return zero for a type without a workout: an empty day and 10-count -> 0.
+    func completedReps(of type: BurpeeType) -> Int {
+        repsByType[type, default: 0]
+    }
+}
+
+// MARK: - Workout storage
+
 /// Holds workout history and persists it as JSON in Application Support.
 /// An optional `HistoryBackup` mirrors every save outside the app sandbox
 /// and is restored from when the file is missing (fresh install after the
@@ -29,8 +46,22 @@ final class WorkoutStore {
         save()
     }
 
-    var totalCompletedReps: Int {
-        workouts.reduce(0) { $0 + $1.completedReps }
+    /// Sum earned reps of one type: 6-count 40 + 10-count 20, asking for 6-count -> 40.
+    func totalCompletedReps(of type: BurpeeType) -> Int {
+        workouts.filter { $0.burpeeType == type }.reduce(0) { $0 + $1.completedReps }
+    }
+
+    /// Combine same-day workouts by type, ordered from oldest to newest.
+    var dailyHistory: [WorkoutDay] {
+        Dictionary(grouping: workouts) { Calendar.current.startOfDay(for: $0.date) }
+            .map { date, workouts in
+                WorkoutDay(
+                    date: date,
+                    repsByType: workouts.reduce(into: [:]) { totals, workout in
+                        totals[workout.burpeeType, default: 0] += workout.completedReps
+                    })
+            }
+            .sorted { $0.date < $1.date }
     }
 
     /// Most recent workout of the given type; seeds the next workout's target.

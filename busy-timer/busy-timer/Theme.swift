@@ -8,6 +8,9 @@ import SwiftUI
 /// segmented controls, thin rules instead of cards. Reference:
 /// mockups/final-bauhaus.png.
 enum Theme {
+    /// Keep controls in one readable column on wider displays.
+    static let contentWidth: CGFloat = 560
+
     static let paper = Color(red: 0.969, green: 0.957, blue: 0.925)
     static let ink = Color(red: 0.078, green: 0.078, blue: 0.078)
     /// Time: clock bar, pace seconds, current-set dots, brand periods.
