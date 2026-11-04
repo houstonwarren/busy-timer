@@ -1,4 +1,3 @@
-
 set default-list
 set positional-arguments
 
@@ -62,7 +61,7 @@ test:
     set -euo pipefail
     xcodebuild test -project {{project}} -scheme {{scheme}} -destination 'platform=iOS Simulator,id={{simulator}}' -derivedDataPath "{{build}}" -only-testing:busy-timerTests
 
-# Render the actual SwiftUI screens at both Duo portrait sizes.
+# Render the actual SwiftUI screens at normal iPhone and both Duo portrait sizes.
 screenshots:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -79,7 +78,7 @@ screenshots:
     for test in json.loads((source / "manifest.json").read_text()):
         for attachment in test["attachments"]:
             name = attachment["suggestedHumanReadableName"].split("_")[0]
-            if name.startswith(("front-", "opened-")):
+            if name.startswith(("iphone-", "front-", "opened-")):
                 shutil.copyfile(source / attachment["exportedFileName"], Path("scratch") / f"{name}.png")
     PY
 

@@ -3,12 +3,20 @@ import XCTest
 
 @testable import busy_timer
 
+// MARK: - Simulator renders
+
 private final class LayoutHostingController<Content: View>: UIHostingController<Content> {
     override var prefersStatusBarHidden: Bool { true }
 }
 
 @MainActor
 final class LayoutRenderTests: XCTestCase {
+    private let portraitSizes: [(String, CGSize)] = [
+        ("iphone", CGSize(width: 402, height: 874)),
+        ("front", CGSize(width: 466, height: 678)),
+        ("opened", CGSize(width: 669, height: 951)),
+    ]
+
     /// Render the app's content at a fixed size, without simulated system chrome.
     private func capture(_ view: some View, size: CGSize, name: String, store: WorkoutStore) throws {
         let content =
@@ -63,6 +71,36 @@ final class LayoutRenderTests: XCTestCase {
             try capture(
                 TimerView(plan: plan, engine: engine),
                 size: size, name: "\(name)-running", store: store)
+        }
+    }
+
+    /// Render mixed-type history, empty history, and a single workout on iPhone and Duo.
+    func testHistoryLayouts() throws {
+        let file = URL.temporaryDirectory.appending(path: "history-layout-\(UUID()).json")
+        defer { try? FileManager.default.removeItem(at: file) }
+        let store = WorkoutStore(fileURL: file)
+
+        for (name, size) in portraitSizes {
+            try capture(HistoryView(), size: size, name: "\(name)-history-empty", store: store)
+        }
+
+        let firstDay = Date(timeIntervalSince1970: 1_793_361_600)
+        store.add(Workout(date: firstDay, burpeeType: .sixCount, targetReps: 100, completedReps: 85, secondsPerRep: 12))
+        for (name, size) in portraitSizes {
+            try capture(HistoryView(), size: size, name: "\(name)-history-single", store: store)
+        }
+
+        for (offset, six, ten) in [(2, 92, 50), (4, 100, 56), (7, 105, 60), (9, 110, 68), (11, 120, 75)] {
+            let date = try XCTUnwrap(Calendar.current.date(byAdding: .day, value: offset, to: firstDay))
+            for (type, reps) in [(BurpeeType.sixCount, six), (.tenCount, ten)] {
+                store.add(
+                    Workout(
+                        date: date, burpeeType: type, targetReps: reps, completedReps: reps,
+                        secondsPerRep: 1200 / Double(reps)))
+            }
+        }
+        for (name, size) in portraitSizes {
+            try capture(HistoryView(), size: size, name: "\(name)-history", store: store)
         }
     }
 }
