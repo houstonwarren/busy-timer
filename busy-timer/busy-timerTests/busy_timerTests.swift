@@ -266,7 +266,7 @@ struct WorkoutStoreTests {
         #expect(reloaded.dailyHistory.last?.completedReps(of: .sixCount) == 70)
     }
 
-    /// Empty history has no bars and zero reps for both workout types.
+    /// Empty history has no chart points and zero reps for both workout types.
     @Test func emptyHistoryHasNoCounts() {
         let store = WorkoutStore(fileURL: temporaryStoreURL())
         #expect(store.dailyHistory.isEmpty)
