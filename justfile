@@ -61,7 +61,7 @@ test:
     set -euo pipefail
     xcodebuild test -project {{project}} -scheme {{scheme}} -destination 'platform=iOS Simulator,id={{simulator}}' -derivedDataPath "{{build}}" -only-testing:busy-timerTests
 
-# Render the actual SwiftUI screens at normal iPhone and both Duo portrait sizes.
+# Render SwiftUI screens at iPhone/Duo sizes, short windows, and asymmetric insets.
 screenshots:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -91,7 +91,7 @@ run:
     xcodebuild -project {{project}} -scheme {{scheme}} -destination "platform=iOS Simulator,id=$sim" -derivedDataPath "{{build}}" build
     # boot (waits until ready), show the window, install, launch
     xcrun simctl bootstatus "$sim" -b
-    open -a Simulator
+    open -a /Applications/Xcode.app/Contents/Applications/DeviceHub.app
     xcrun simctl install "$sim" "{{build}}/Build/Products/Debug-iphonesimulator/busy-timer.app"
     xcrun simctl launch "$sim" {{bundle}}
 
