@@ -37,7 +37,14 @@ final class SetupEntryTests: XCTestCase {
 
         app.buttons["History"].tap()
         XCTAssertTrue(app.staticTexts["history"].waitForExistence(timeout: 5))
-        app.buttons["Back"].tap()
+        let back = app.buttons["BackButton"]
+        XCTAssertTrue(back.waitForExistence(timeout: 5))
+        XCTAssertGreaterThan(back.frame.minX, app.staticTexts["history"].frame.maxX)
+        let history = XCTAttachment(screenshot: app.screenshot())
+        history.name = "closed-duo-history-back"
+        history.lifetime = .keepAlways
+        add(history)
+        back.tap()
         XCTAssertTrue(field.waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["History"].exists)
     }

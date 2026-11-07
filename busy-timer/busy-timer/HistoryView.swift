@@ -5,7 +5,6 @@ import SwiftUI
 
 struct HistoryView: View {
     @Environment(WorkoutStore.self) private var workoutStore
-    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         VStack(spacing: 8) {
@@ -13,33 +12,17 @@ struct HistoryView: View {
             history
         }
         .paperBackground()
-        .toolbar(.hidden, for: .navigationBar)
+        .toolbar(.visible, for: .navigationBar)
     }
 
     private var header: some View {
-        HStack {
-            Button {
-                dismiss()
-            } label: {
-                Image(systemName: "chevron.left")
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundStyle(Theme.ink)
-                    .frame(width: 44, height: 44)
-                    .border(Theme.ink, width: 1.5)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Back")
-            Spacer()
-            Text("history")
-                .font(Theme.display(21))
-                .foregroundStyle(Theme.ink)
-            Spacer()
-            Color.clear.frame(width: 44, height: 44)
-        }
-        .frame(maxWidth: Theme.contentWidth)
-        .padding(.horizontal, 24)
-        .padding(.top, 10)
-        .frame(maxWidth: .infinity)
+        Text("history")
+            .font(Theme.display(21))
+            .foregroundStyle(Theme.ink)
+            .frame(maxWidth: Theme.contentWidth)
+            .padding(.horizontal, 24)
+            .padding(.top, 10)
+            .frame(maxWidth: .infinity)
     }
 
     private var history: some View {

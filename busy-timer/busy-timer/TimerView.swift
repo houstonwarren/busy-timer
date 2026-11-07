@@ -159,8 +159,11 @@ struct TimerView: View {
         .paperBackground()
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
+        .task {
+            await chimePlayer.prepare()
+        }
         .onAppear {
-            engine.onChime = { chimePlayer.play() }
+            engine.onChime = { Task { await chimePlayer.play() } }
             // the phone lies on the floor for the whole session — never sleep here
             UIApplication.shared.isIdleTimerDisabled = true
         }
