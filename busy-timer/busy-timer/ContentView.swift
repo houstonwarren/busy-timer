@@ -32,9 +32,9 @@ struct SetupView: View {
         )
     }
 
-    /// Keep the form together; only section gaps change when less height is available.
-    private func form(sectionSpacing: CGFloat) -> some View {
-        VStack(alignment: .leading, spacing: sectionSpacing) {
+    /// Keep one form mounted as the keyboard opens so the rep field retains focus.
+    private var form: some View {
+        VStack(alignment: .leading, spacing: 24) {
             header
             brief
             targetSection
@@ -48,25 +48,13 @@ struct SetupView: View {
     }
 
     var body: some View {
-        ViewThatFits(in: .vertical) {
-            form(sectionSpacing: 24)
-                .fixedSize(horizontal: false, vertical: true)
-            form(sectionSpacing: 12)
-                .fixedSize(horizontal: false, vertical: true)
-            ScrollView {
-                form(sectionSpacing: 12)
-            }
+        ScrollView {
+            form
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .scrollDismissesKeyboard(.interactively)
         // no panning when everything already fits on screen
         .scrollBounceBehavior(.basedOnSize)
-        // simultaneous so buttons keep every tap; any touch still drops the keyboard
-        .simultaneousGesture(
-            TapGesture().onEnded {
-                if repsFocused { repsFocused = false }
-            }
-        )
         .paperBackground()
         .safeAreaInset(edge: .bottom) {
             VStack(spacing: 0) {
@@ -82,15 +70,22 @@ struct SetupView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 10)
             .frame(maxWidth: .infinity)
-            .background(Theme.paper.opacity(0.94))
+            .background(Theme.paper)
         }
         .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                Button("Done") { repsFocused = false }
+            if repsFocused {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done", systemImage: "checkmark") { repsFocused = false }
+                }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                NavigationLink {
+                    HistoryView()
+                } label: {
+                    Label("History", systemImage: "clock")
+                }
             }
         }
-        .toolbar(.hidden, for: .navigationBar)
         .navigationDestination(item: $activePlan) { plan in
             TimerView(plan: plan)
         }
@@ -120,18 +115,6 @@ struct SetupView: View {
                     .foregroundStyle(Theme.red)
             }
             Spacer()
-            NavigationLink {
-                HistoryView()
-            } label: {
-                Image(systemName: "clock")
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundStyle(Theme.ink)
-                    .frame(width: 44, height: 44)
-                    .border(Theme.ink, width: 1.5)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("History")
         }
         .padding(.top, 10)
     }
@@ -187,7 +170,6 @@ struct SetupView: View {
                 TextField("0", value: $targetReps, format: .number)
                     .keyboardType(.numberPad)
                     .focused($repsFocused)
-                    .simultaneousGesture(TapGesture().onEnded { targetReps = nil })
                     .font(Theme.display(72))
                     .foregroundStyle(Theme.ink)
                     .multilineTextAlignment(.center)
