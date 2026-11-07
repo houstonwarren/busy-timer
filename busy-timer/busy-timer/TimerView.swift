@@ -60,32 +60,102 @@ struct TimerView: View {
         engine.phase == .ready ? 1 : engine.intervalFractionRemaining
     }
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+    /// The same readout appears above progress in every layout.
+    private var readout: some View {
+        VStack(alignment: .leading, spacing: 18) {
             statusHeader
-
             countdownBlock
-                .padding(.top, 18)
+        }
+    }
 
+    private var repProgress: some View {
+        VStack(alignment: .leading, spacing: 16) {
             RepDotGrid(
                 total: plan.targetReps,
                 done: engine.completedReps,
                 currentSet: engine.phase == .finished ? 0 : engine.repsThisChime
             )
-            .frame(maxHeight: .infinity)
-            .padding(.top, 18)
-
+            .frame(minHeight: 100, maxHeight: .infinity)
             counterRow
-                .padding(.top, 16)
-
-            controls
-                .padding(.top, 18)
         }
-        .frame(maxWidth: Theme.contentWidth)
-        .padding(.horizontal, 24)
-        .padding(.top, 8)
-        .padding(.bottom, 12)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var controlBar: some View {
+        controls
+            .frame(maxWidth: Theme.contentWidth)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 12)
+            .frame(maxWidth: .infinity)
+            .background(Theme.paper)
+    }
+
+    /// Keep the closed and flat layout in one column, scrolling only when needed.
+    private var standardLayout: some View {
+        GeometryReader { geometry in
+            ScrollView {
+                VStack(alignment: .leading, spacing: 18) {
+                    readout
+                    repProgress
+                }
+                .frame(maxWidth: Theme.contentWidth)
+                .padding(.horizontal, 24)
+                .padding(.top, 8)
+                .padding(.bottom, 18)
+                .frame(minHeight: geometry.size.height)
+                .frame(maxWidth: .infinity)
+            }
+            .scrollBounceBehavior(.basedOnSize)
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            controlBar
+        }
+    }
+
+    /// Split at the system's fold: countdown above, progress and controls below.
+    @available(iOS 27.1, *)
+    var tabletopLayout: some View {
+        ArrangementView {
+            ScrollView {
+                readout
+                    .frame(maxWidth: Theme.contentWidth)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 18)
+                    .frame(maxWidth: .infinity)
+            }
+            .scrollBounceBehavior(.basedOnSize)
+            .paperBackground()
+        } secondary: {
+            GeometryReader { geometry in
+                ScrollView {
+                    repProgress
+                        .frame(maxWidth: Theme.contentWidth)
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 18)
+                        .frame(minHeight: geometry.size.height)
+                        .frame(maxWidth: .infinity)
+                }
+                .scrollBounceBehavior(.basedOnSize)
+            }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                controlBar
+            }
+            .paperBackground()
+        }
+        .arrangementViewStyle(.split.axes(.vertical))
+    }
+
+    var body: some View {
+        GeometryReader { geometry in
+            if #available(iOS 27.1, *),
+                geometry.reservedRegions(kind: .division).contains(where: {
+                    $0.isActive && $0.frame.width > $0.frame.height
+                })
+            {
+                tabletopLayout
+            } else {
+                standardLayout
+            }
+        }
         .paperBackground()
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
@@ -139,7 +209,7 @@ struct TimerView: View {
         }
     }
 
-    /// Keep the countdown legible at a fixed size; the grid takes the remaining height.
+    /// Keep the countdown legible; short windows scroll above the pinned controls.
     private var countdownBlock: some View {
         VStack(alignment: .leading, spacing: 0) {
             if engine.phase == .ready {
@@ -207,6 +277,8 @@ struct TimerView: View {
                     .label(color: Theme.grey)
             }
         }
+        .lineLimit(1)
+        .minimumScaleFactor(0.5)
     }
 
     private var controls: some View {
@@ -215,7 +287,6 @@ struct TimerView: View {
             case .ready:
                 Button("cancel") { dismiss() }
                     .buttonStyle(OutlineBarButtonStyle())
-                    .frame(width: 132)
                 Button("start") { engine.start() }
                     .buttonStyle(InkBarButtonStyle(showDot: true))
 
@@ -231,7 +302,6 @@ struct TimerView: View {
                     }
                 }
                 .buttonStyle(OutlineBarButtonStyle(tint: Theme.red))
-                .frame(width: 132)
 
                 if engine.phase == .paused {
                     Button("resume") { engine.resume() }

@@ -126,11 +126,12 @@ struct SetupView: View {
                 Image(systemName: "clock")
                     .font(.system(size: 15, weight: .medium))
                     .foregroundStyle(Theme.ink)
-                    .frame(width: 36, height: 36)
+                    .frame(width: 44, height: 44)
                     .border(Theme.ink, width: 1.5)
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .accessibilityLabel("History")
         }
         .padding(.top, 10)
     }

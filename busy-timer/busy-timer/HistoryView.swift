@@ -24,7 +24,7 @@ struct HistoryView: View {
                 Image(systemName: "chevron.left")
                     .font(.system(size: 15, weight: .medium))
                     .foregroundStyle(Theme.ink)
-                    .frame(width: 36, height: 36)
+                    .frame(width: 44, height: 44)
                     .border(Theme.ink, width: 1.5)
             }
             .buttonStyle(.plain)
@@ -34,7 +34,7 @@ struct HistoryView: View {
                 .font(Theme.display(21))
                 .foregroundStyle(Theme.ink)
             Spacer()
-            Color.clear.frame(width: 36, height: 36)
+            Color.clear.frame(width: 44, height: 44)
         }
         .frame(maxWidth: Theme.contentWidth)
         .padding(.horizontal, 24)
